@@ -9,6 +9,11 @@ let mouseX = 0;
 let mouseY = 0;
 let time = 0;
 
+// Configuration constants
+const PATTERN_CYCLE_SPEED = 0.2;
+const FADE_OPACITY = 0.1;
+const HUE_ROTATION_SPEED = 30;
+
 // Resize canvas to fill window
 function resizeCanvas() {
     width = canvas.width = window.innerWidth;
@@ -208,14 +213,14 @@ function animate() {
     time += 0.01;
     
     // Clear canvas with fade effect
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+    ctx.fillStyle = `rgba(0, 0, 0, ${FADE_OPACITY})`;
     ctx.fillRect(0, 0, width, height);
     
     // Rotating base hue
-    const baseHue = (time * 30) % 360;
+    const baseHue = (time * HUE_ROTATION_SPEED) % 360;
     
     // Choose pattern based on time cycling
-    const pattern = Math.floor(time * 0.2) % 3;
+    const pattern = Math.floor(time * PATTERN_CYCLE_SPEED) % 3;
     
     if (pattern === 0) {
         // Fractal tree pattern
