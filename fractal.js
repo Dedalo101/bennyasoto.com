@@ -94,12 +94,17 @@ function drawJuliaPattern() {
                 const lightness = 50;
                 
                 const rgb = hslToRgb(hue / 360, saturation / 100, lightness / 100);
-                const index = (py * width + px) * 4;
                 
-                data[index] = rgb[0];
-                data[index + 1] = rgb[1];
-                data[index + 2] = rgb[2];
-                data[index + 3] = 255;
+                // Fill 2x2 block to avoid gaps
+                for (let dx = 0; dx < 2 && px + dx < width; dx++) {
+                    for (let dy = 0; dy < 2 && py + dy < height; dy++) {
+                        const index = ((py + dy) * width + (px + dx)) * 4;
+                        data[index] = rgb[0];
+                        data[index + 1] = rgb[1];
+                        data[index + 2] = rgb[2];
+                        data[index + 3] = 255;
+                    }
+                }
             }
         }
     }
