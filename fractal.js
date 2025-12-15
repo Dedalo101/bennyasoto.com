@@ -1,5 +1,5 @@
-// Fractal Groove Visualization
-// CPU-rendered fractal patterns using Canvas API
+// Dark Techno Fractal Visualization
+// CPU-rendered patterns for TECHNO aesthetic
 
 const canvas = document.getElementById('fractalCanvas');
 const ctx = canvas.getContext('2d');
@@ -10,8 +10,8 @@ let mouseY = 0;
 let time = 0;
 
 // Configuration constants
-const PATTERN_CYCLE_SPEED = 0.2;
-const FADE_OPACITY = 0.1;
+const PATTERN_CYCLE_SPEED = 0.5;
+const FADE_OPACITY = 0.15;
 const HUE_ROTATION_SPEED = 30;
 
 // Resize canvas to fill window
@@ -49,36 +49,36 @@ function drawFractalTree(x, y, length, angle, depth, hue) {
     const endX = x + length * Math.cos(angle);
     const endY = y + length * Math.sin(angle);
     
-    // Create gradient for each branch
+    // Create gradient for each branch - darker tones
     const gradient = ctx.createLinearGradient(x, y, endX, endY);
-    gradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0.8)`);
-    gradient.addColorStop(1, `hsla(${hue + 30}, 100%, 50%, 0.4)`);
+    gradient.addColorStop(0, `hsla(${hue}, 20%, 20%, 0.6)`);
+    gradient.addColorStop(1, `hsla(${hue + 10}, 20%, 10%, 0.3)`);
     
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(endX, endY);
     ctx.strokeStyle = gradient;
-    ctx.lineWidth = depth * 0.5;
+    ctx.lineWidth = depth * 0.4;
     ctx.lineCap = 'round';
     ctx.stroke();
     
     // Recursive branches
-    const angleOffset = Math.PI / 4 + mouseX * Math.PI / 8;
-    const lengthFactor = 0.7 + mouseY * 0.1;
+    const angleOffset = Math.PI / 5 + mouseX * Math.PI / 10;
+    const lengthFactor = 0.6 + mouseY * 0.15;
     
-    drawFractalTree(endX, endY, length * lengthFactor, angle - angleOffset, depth - 1, hue + 10);
-    drawFractalTree(endX, endY, length * lengthFactor, angle + angleOffset, depth - 1, hue + 10);
+    drawFractalTree(endX, endY, length * lengthFactor, angle - angleOffset, depth - 1, hue + 5);
+    drawFractalTree(endX, endY, length * lengthFactor, angle + angleOffset, depth - 1, hue + 5);
 }
 
-// Draw Julia set inspired pattern
+// Draw Julia set inspired pattern - desaturated
 function drawJuliaPattern() {
     const imageData = ctx.createImageData(width, height);
     const data = imageData.data;
     
-    const maxIterations = 50;
-    const zoom = 1.5 + mouseX * 0.5;
-    const cX = -0.7 + mouseX * 0.3;
-    const cY = 0.27015 + mouseY * 0.1;
+    const maxIterations = 40;
+    const zoom = 1.2 + mouseX * 0.4;
+    const cX = -0.8 + mouseX * 0.2;
+    const cY = 0.156 + mouseY * 0.1;
     
     for (let px = 0; px < width; px += 2) {
         for (let py = 0; py < height; py += 2) {
@@ -94,13 +94,13 @@ function drawJuliaPattern() {
             }
             
             if (iteration < maxIterations) {
-                const hue = (iteration / maxIterations * 360 + time * 50) % 360;
-                const saturation = 100;
-                const lightness = 50;
+                const hue = (iteration / maxIterations * 360 + time * 30) % 360;
+                const saturation = 10 + mouseY * 10;
+                const lightness = 15 + (iteration / maxIterations) * 10;
                 
                 const rgb = hslToRgb(hue / 360, saturation / 100, lightness / 100);
                 
-                // Fill 2x2 block to avoid gaps
+                // Fill 2x2 block
                 for (let dx = 0; dx < 2 && px + dx < width; dx++) {
                     for (let dy = 0; dy < 2 && py + dy < height; dy++) {
                         const index = ((py + dy) * width + (px + dx)) * 4;
@@ -117,7 +117,7 @@ function drawJuliaPattern() {
     ctx.putImageData(imageData, 0, 0);
 }
 
-// Draw geometric fractal mandala
+// Draw geometric fractal mandala - darker
 function drawFractalMandala(centerX, centerY, radius, sides, depth, rotation, hue) {
     if (depth === 0 || radius < 5) return;
     
@@ -140,35 +140,35 @@ function drawFractalMandala(centerX, centerY, radius, sides, depth, rotation, hu
     }
     ctx.closePath();
     
-    ctx.strokeStyle = `hsla(${hue}, 80%, 50%, ${depth / 10})`;
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = `hsla(${hue}, 15%, 25%, ${depth / 8})`;
+    ctx.lineWidth = 1.5;
     ctx.stroke();
     
-    // Recursive smaller mandalas at vertices
+    // Recursive smaller mandalas
     for (let i = 0; i < sides; i++) {
         const angle = (i / sides) * Math.PI * 2;
         const x = Math.cos(angle) * radius;
         const y = Math.sin(angle) * radius;
         
-        drawFractalMandala(x, y, radius * 0.4, sides, depth - 1, rotation + 0.1, hue + 20);
+        drawFractalMandala(x, y, radius * 0.35, sides, depth - 1, rotation + 0.05, hue + 10);
     }
     
     ctx.restore();
 }
 
-// Draw Sierpinski-inspired triangular patterns
+// Draw Sierpinski-inspired triangular patterns - industrial feel
 function drawSierpinskiPattern(x, y, size, depth, hue) {
     if (depth === 0 || size < 10) {
-        // Draw filled triangle
+        // Draw filled triangle - low opacity
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x + size, y);
         ctx.lineTo(x + size / 2, y - size * Math.sin(Math.PI / 3));
         ctx.closePath();
-        ctx.fillStyle = `hsla(${hue}, 90%, 50%, 0.3)`;
+        ctx.fillStyle = `hsla(${hue}, 10%, 15%, 0.2)`;
         ctx.fill();
-        ctx.strokeStyle = `hsla(${hue + 30}, 100%, 60%, 0.6)`;
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = `hsla(${hue + 20}, 15%, 25%, 0.4)`;
+        ctx.lineWidth = 0.8;
         ctx.stroke();
         return;
     }
@@ -177,9 +177,9 @@ function drawSierpinskiPattern(x, y, size, depth, hue) {
     const height = size * Math.sin(Math.PI / 3);
     
     // Recursive subdivision
-    drawSierpinskiPattern(x, y, halfSize, depth - 1, hue + 10);
-    drawSierpinskiPattern(x + halfSize, y, halfSize, depth - 1, hue + 10);
-    drawSierpinskiPattern(x + halfSize / 2, y - height / 2, halfSize, depth - 1, hue + 10);
+    drawSierpinskiPattern(x, y, halfSize, depth - 1, hue + 5);
+    drawSierpinskiPattern(x + halfSize, y, halfSize, depth - 1, hue + 5);
+    drawSierpinskiPattern(x + halfSize / 2, y - height / 2, halfSize, depth - 1, hue + 5);
 }
 
 // Helper function to convert HSL to RGB
@@ -212,48 +212,48 @@ function hslToRgb(h, s, l) {
 function animate() {
     time += 0.01;
     
-    // Clear canvas with fade effect
+    // Clear canvas with stronger fade for persistence
     ctx.fillStyle = `rgba(0, 0, 0, ${FADE_OPACITY})`;
     ctx.fillRect(0, 0, width, height);
     
-    // Rotating base hue
-    const baseHue = (time * HUE_ROTATION_SPEED) % 360;
+    // Subtle base hue rotation - limited range for dark vibe
+    const baseHue = 200 + (Math.sin(time) * 20); // Cool blues/grays
     
-    // Choose pattern based on time cycling
+    // Choose pattern based on time
     const pattern = Math.floor(time * PATTERN_CYCLE_SPEED) % 3;
     
     if (pattern === 0) {
-        // Fractal tree pattern
-        const treeCount = 3 + Math.floor(mouseX * 3);
+        // Fractal tree - fewer, taller
+        const treeCount = 2 + Math.floor(mouseX * 2);
         for (let i = 0; i < treeCount; i++) {
             const x = (width / (treeCount + 1)) * (i + 1);
             const y = height;
-            const angle = -Math.PI / 2 + Math.sin(time + i) * 0.2;
-            const length = height * 0.15;
-            drawFractalTree(x, y, length, angle, 8, baseHue + i * 60);
+            const angle = -Math.PI / 2 + Math.sin(time + i) * 0.1;
+            const length = height * 0.2;
+            drawFractalTree(x, y, length, angle, 7, baseHue + i * 30);
         }
     } else if (pattern === 1) {
-        // Mandala pattern
-        const mandalaCount = 2 + Math.floor(mouseY * 2);
+        // Mandala - slower rotation
+        const mandalaCount = 1 + Math.floor(mouseY * 2);
         for (let i = 0; i < mandalaCount; i++) {
-            const x = width / 2 + Math.cos(time + i * Math.PI * 2 / mandalaCount) * width * 0.2;
-            const y = height / 2 + Math.sin(time + i * Math.PI * 2 / mandalaCount) * height * 0.2;
-            const sides = 5 + Math.floor(mouseX * 3);
-            drawFractalMandala(x, y, height * 0.15, sides, 4, time, baseHue + i * 90);
+            const x = width / 2 + Math.cos(time * 0.5 + i * Math.PI * 2 / mandalaCount) * width * 0.15;
+            const y = height / 2 + Math.sin(time * 0.5 + i * Math.PI * 2 / mandalaCount) * height * 0.15;
+            const sides = 4 + Math.floor(mouseX * 4);
+            drawFractalMandala(x, y, height * 0.2, sides, 5, time * 0.2, baseHue + i * 60);
         }
     } else {
-        // Sierpinski triangle pattern
-        const triangleSize = height * 0.4 + mouseY * height * 0.3;
+        // Sierpinski - larger, rotating
+        const triangleSize = height * 0.5 + mouseY * height * 0.2;
         const offsetX = width / 2 - triangleSize / 2;
-        const offsetY = height / 2 + triangleSize * 0.3;
-        drawSierpinskiPattern(offsetX, offsetY, triangleSize, 5, baseHue);
+        const offsetY = height / 2 + triangleSize * 0.25;
+        drawSierpinskiPattern(offsetX, offsetY, triangleSize, 6, baseHue);
         
-        // Add symmetric patterns
+        // Symmetric overlay
         ctx.save();
         ctx.translate(width / 2, height / 2);
-        ctx.rotate(time);
+        ctx.rotate(time * 0.3);
         ctx.translate(-width / 2, -height / 2);
-        drawSierpinskiPattern(offsetX, offsetY, triangleSize * 0.5, 4, baseHue + 120);
+        drawSierpinskiPattern(offsetX, offsetY, triangleSize * 0.6, 5, baseHue + 60);
         ctx.restore();
     }
     
