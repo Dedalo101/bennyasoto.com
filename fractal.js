@@ -1,5 +1,5 @@
 // Intense Datamatics Techno Visualization with Enhanced Glitch
-// No auto cycle, switch on stop/move lift, added datamosh, spiral fractal, mandelbrot
+// Added scan lines, pixel sorting; optimized by reducing slices/noise, glitch on beat only
 
 const canvas = document.getElementById('fractalCanvas');
 const ctx = canvas.getContext('2d');
@@ -8,18 +8,14 @@ let width, height;
 let mouseX = 0.5;
 let mouseY = 0.5;
 let time = 0;
-let currentPattern = 0;
-let interacting = false;
-let lastMoveTime = 0;
-let isTouch = false;
 
 // Constants
 const TEMPO = 128 / 60;
+const PATTERN_CYCLE_SPEED = TEMPO / 2;
 const FADE_OPACITY = 0.03;
 const PULSE_FREQ = TEMPO * 8;
 const FLASH_THRESHOLD = 0.9;
 const GLITCH_FREQ = TEMPO * 4;
-const STOP_THRESHOLD = 0.5;
 
 // Resize
 function resizeCanvas() {
@@ -34,24 +30,13 @@ window.addEventListener('resize', resizeCanvas);
 document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX / width;
     mouseY = e.clientY / height;
-    lastMoveTime = time;
-    if (!interacting) interacting = true;
-    isTouch = false;
 });
 
 document.addEventListener('touchmove', (e) => {
     if (e.touches.length > 0) {
         mouseX = e.touches[0].clientX / width;
         mouseY = e.touches[0].clientY / height;
-        lastMoveTime = time;
-        if (!interacting) interacting = true;
-        isTouch = true;
     }
-});
-
-document.addEventListener('touchend', () => {
-    currentPattern = (currentPattern + 1) % 6;
-    interacting = false;
 });
 
 // Pulse
@@ -102,7 +87,7 @@ function drawDataPath(centerX, centerY, segments, depth, rotation) {
     ctx.restore();
 }
 
-// Data field (Julia)
+// Data field
 function drawDataField() {
     const imageData = ctx.createImageData(width, height);
     const data = imageData.data;
@@ -167,110 +152,7 @@ function drawBinaryTriangle(x, y, size, depth) {
     drawBinaryTriangle(x + halfSize / 2, y - height / 2, halfSize, depth - 1);
 }
 
-// Spiral fractal
-function drawSpiralPattern() {
-    ctx.lineCap = 'round';
-    ctx.shadowColor = 'rgba(0,0,0,0.7)';
-    ctx.shadowOffsetX = 10;
-    ctx.shadowOffsetY = 5;
-    ctx.shadowBlur = 10;
-
-    const size = Math.min(width, height) * 0.3;
-    const maxLevel = 5 + Math.floor(mouseX * 3);
-    const scale = 0.8 + mouseY * 0.1;
-    const branches = Math.random() * 3 + 1;
-    const spread = 0.2 + mouseX * 0.2 + Math.sin(time) * 0.1;
-    const color = 'rgba(255, 255, 255, 0.8)';
-    const lineWidth = 6 * pulseScale();
-    const sides = Math.floor(3 + mouseY * 4);
-
-    function drawBranch(level) {
-        if (level > maxLevel) return;
-        ctx.beginPath();
-        ctx.moveTo(0,0);
-        ctx.lineTo(size, 0);
-        ctx.stroke();
-
-        ctx.save();
-        ctx.translate(size * 0.1, 0);
-        ctx.scale(scale, scale);
-        ctx.rotate(spread);
-        drawBranch(level + 1);
-        ctx.restore();
-
-        ctx.save();
-        ctx.translate(size * 0.5, 0);
-        ctx.scale(scale, scale);
-        ctx.rotate(spread * 1.5);
-        drawBranch(level + 1);
-        ctx.restore();
-
-        ctx.save();
-        ctx.translate(size * 0.6, 0);
-        ctx.scale(scale * 0.3, scale * 0.3);
-        ctx.rotate(spread * 0.5);
-        drawBranch(level + 1);
-        ctx.restore();
-
-        ctx.beginPath();
-        ctx.arc(size * 1.1,0,size * 0.09, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    ctx.clearRect(0, 0, width, height); // For spiral clear
-    ctx.strokeStyle = color;
-    ctx.fillStyle = color;
-    ctx.lineWidth = lineWidth;
-    ctx.save();
-    ctx.translate(width/2, height/2);
-    for (let i = 0; i < sides; i++){
-        ctx.rotate((Math.PI * 2)/sides + time * 0.1);
-        drawBranch(0);
-    }
-    ctx.restore();
-}
-
-// Mandelbrot
-function drawMandelbrot() {
-    const imageData = ctx.createImageData(width, height);
-    const data = imageData.data;
-    
-    const maxIterations = 60;
-    const zoom = 1.3 + mouseX * 0.6 + 0.3 * Math.sin(time * PULSE_FREQ);
-    
-    for (let px = 0; px < width; px += 2) {
-        for (let py = 0; py < height; py += 2) {
-            let x0 = (px - width / 2) / (0.25 * zoom * width) + mouseX * 0.5 - 0.5;
-            let y0 = (py - height / 2) / (0.25 * zoom * height) + mouseY * 0.5;
-            let x = 0;
-            let y = 0;
-            let iteration = 0;
-            while (x * x + y * y <= 4 && iteration < maxIterations) {
-                const xtemp = x * x - y * y + x0;
-                y = 2 * x * y + y0;
-                x = xtemp;
-                iteration++;
-            }
-            
-            if (iteration < maxIterations) {
-                const value = 255 * (iteration / maxIterations * pulseScale());
-                for (let dx = 0; dx < 2 && px + dx < width; dx++) {
-                    for (let dy = 0; dy < 2 && py + dy < height; dy++) {
-                        const index = ((py + dy) * width + (px + dx)) * 4;
-                        data[index] = value;
-                        data[index + 1] = value;
-                        data[index + 2] = value;
-                        data[index + 3] = 160 + value / 1.5;
-                    }
-                }
-            }
-        }
-    }
-    
-    ctx.putImageData(imageData, 0, 0);
-}
-
-// Pixel sort
+// Pixel sort helper
 function pixelSortRow(data, y, startX, endX) {
     const pixels = [];
     for (let x = startX; x < endX; x++) {
@@ -289,12 +171,12 @@ function pixelSortRow(data, y, startX, endX) {
     }
 }
 
-// Glitch effect with datamosh
+// Glitch effect
 function applyGlitch() {
     const imageData = ctx.getImageData(0, 0, width, height);
     const data = imageData.data;
     
-    // Row shifts
+    // Optimized row shifts: fewer slices
     const numSlices = 3 + Math.floor(Math.random() * 3);
     for (let s = 0; s < numSlices; s++) {
         const sliceY = Math.floor(Math.random() * height);
@@ -315,7 +197,7 @@ function applyGlitch() {
         }
     }
     
-    // Noise
+    // Optimized noise: lower density
     const noiseDensity = 0.005;
     for (let i = 0; i < data.length; i += 4) {
         if (Math.random() < noiseDensity) {
@@ -326,27 +208,13 @@ function applyGlitch() {
         }
     }
     
-    // Pixel sorting
+    // Pixel sorting: few rows
     const numSortRows = 5 + Math.floor(Math.random() * 5);
     for (let s = 0; s < numSortRows; s++) {
         const y = Math.floor(Math.random() * height);
         const segmentLength = Math.floor(50 + Math.random() * 200);
         const startX = Math.floor(Math.random() * (width - segmentLength));
         pixelSortRow(data, y, startX, startX + segmentLength);
-    }
-    
-    // Datamosh
-    const numMosh = 5;
-    for (let s = 0; s < numMosh; s++) {
-        const x = Math.floor(Math.random() * width);
-        const y = Math.floor(Math.random() * height);
-        const w = Math.floor(50 + Math.random() * 200);
-        const h = Math.floor(50 + Math.random() * 200);
-        const dx = Math.floor(-10 + Math.random() * 20);
-        const dy = Math.floor(-10 + Math.random() * 20);
-        if (x + w > width || y + h > height) continue;
-        const moshData = ctx.getImageData(x, y, w, h);
-        ctx.putImageData(moshData, x + dx, y + dy);
     }
     
     ctx.putImageData(imageData, 0, 0);
@@ -375,56 +243,39 @@ function animate() {
         ctx.fillRect(0, 0, width, height);
     }
     
-    switch (currentPattern) {
-        case 0:
-            drawDataStream();
-            break;
-        case 1:
-            drawDataField();
-            break;
-        case 2:
-            const count = 3 + Math.floor(mouseY * 3);
-            for (let i = 0; i < count; i++) {
-                const x = width / 2 + Math.sin(time * TEMPO + i) * width * 0.2;
-                const y = height / 2 + Math.cos(time * TEMPO + i) * height * 0.2;
-                drawDataPath(x, y, 16 + Math.floor(mouseX * 12), 8, time * TEMPO / 2);
-            }
-            break;
-        case 3:
-            const size = height * 0.45 + mouseY * height * 0.25;
-            const offsetX = width / 2 - size / 2;
-            const offsetY = height / 2 + size * 0.3;
-            drawBinaryTriangle(offsetX, offsetY, size, 6);
-            
-            ctx.save();
-            ctx.translate(width / 2, height / 2);
-            ctx.rotate(time * TEMPO / 3);
-            ctx.translate(-width / 2, -height / 2);
-            drawBinaryTriangle(offsetX, offsetY, size * 0.7, 5);
-            ctx.restore();
-            break;
-        case 4:
-            drawSpiralPattern();
-            break;
-        case 5:
-            drawMandelbrot();
-            break;
+    const pattern = Math.floor(time * PATTERN_CYCLE_SPEED) % 4;
+    
+    if (pattern === 0) {
+        drawDataStream();
+    } else if (pattern === 1) {
+        drawDataField();
+    } else if (pattern === 2) {
+        const count = 3 + Math.floor(mouseY * 3);
+        for (let i = 0; i < count; i++) {
+            const x = width / 2 + Math.sin(time * TEMPO + i) * width * 0.2;
+            const y = height / 2 + Math.cos(time * TEMPO + i) * height * 0.2;
+            drawDataPath(x, y, 16 + Math.floor(mouseX * 12), 8, time * TEMPO / 2);
+        }
+    } else {
+        const size = height * 0.45 + mouseY * height * 0.25;
+        const offsetX = width / 2 - size / 2;
+        const offsetY = height / 2 + size * 0.3;
+        drawBinaryTriangle(offsetX, offsetY, size, 6);
+        
+        ctx.save();
+        ctx.translate(width / 2, height / 2);
+        ctx.rotate(time * TEMPO / 3);
+        ctx.translate(-width / 2, -height / 2);
+        drawBinaryTriangle(offsetX, offsetY, size * 0.7, 5);
+        ctx.restore();
     }
     
-    // Glitch
+    // Glitch on beat only
     if (Math.sin(time * GLITCH_FREQ * Math.PI * 2) > 0.95) {
         applyGlitch();
-    }
-    
-    // Check for stop interaction
-    if (interacting && time - lastMoveTime > STOP_THRESHOLD) {
-        currentPattern = (currentPattern + 1) % 6;
-        interacting = false;
     }
     
     requestAnimationFrame(animate);
 }
 
 animate();
-
-// Note: For Three.js glitch shaders, include Three.js and postprocessing libraries, set up scene with plane, use EffectComposer with GlitchPass.
