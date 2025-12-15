@@ -23,7 +23,58 @@ function initAudio() {
     if (audioInitialized) return;
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
+    analyser.fft    // Reduce glitch intensity on mobile
+    if ((Math.sin(time * GLITCH_FREQ * Math.PI * 2) > 0.95 - audioLevel * 0.1) && !isMobile) {
+        applyGlitch();
+    } else if (isMobile && Math.sin(time * GLITCH_FREQ * Math.PI * 2) > 0.97) {
+        // Lighter glitch for mobile
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        const numSlices = 1 + Math.floor(Math.random() * 2); // Fewer slices
+        for (let s = 0; s < num        // ...existing code...
+        
+        // Sierpinski Triangle (optimized for mobile)
+        function drawSierpinskiTriangle() {
+            const maxDepth = isMobile ? 4 : 6; // Reduced depth on mobile
+            const size = Math.min(width, height) * 0.4;
+            const offsetX = width / 2 - size / 2;
+            const offsetY = height / 2 + size * 0.3;
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = pulseScale() * 1.5;
+            
+            function sierpinski(x, y, size, depth) {
+                if (depth === 0 || size < 2) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + size, y);
+                    ctx.lineTo(x + size / 2, y - size * Math.sqrt(3) / 2);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    return;
+                }
+                
+                const halfSize = size / 2;
+                const height = size * Math.sqrt(3) / 2;
+                
+                sierpinski(x, y, halfSize, depth - 1);
+                sierpinski(x + halfSize, y, halfSize, depth - 1);
+                sierpinski(x + halfSize / 2, y - height / 2, halfSize, depth - 1);
+            }
+            
+            sierpinski(offsetX, offsetY, size, maxDepth);
+        }
+        
+        // ...existing code...
+        
+        // In animate() switch statement, update case 3:
+                case 3:
+                    drawSierpinskiTriangle();
+                    break;
+        
+        // ...existing code...ze = 256;
     dataArray = new Uint8Array(analyser.frequencyBinCount);
     
     navigator.mediaDevices.getUserMedia({ audio: true })
@@ -162,30 +213,6 @@ function drawDataField() {
     }
     
     ctx.putImageData(imageData, 0, 0);
-}
-
-// Binary triangle
-function drawBinaryTriangle(x, y, size, depth) {
-    if (depth === 0 || size < 10) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + size, y);
-        ctx.lineTo(x + size / 2, y - size * Math.sin(Math.PI / 3) * pulseScale());
-        ctx.closePath();
-        ctx.fillStyle = `rgba(255, 255, 255, 0.2)`;
-        ctx.fill();
-        ctx.strokeStyle = `rgba(255, 255, 255, 0.6)`;
-        ctx.lineWidth = pulseScale() * 1.5;
-        ctx.stroke();
-        return;
-    }
-    
-    const halfSize = size / 2;
-    const height = size * Math.sin(Math.PI / 3);
-    
-    drawBinaryTriangle(x, y, halfSize, depth - 1);
-    drawBinaryTriangle(x + halfSize, y, halfSize, depth - 1);
-    drawBinaryTriangle(x + halfSize / 2, y - height / 2, halfSize, depth - 1);
 }
 
 // Spiral fractal
