@@ -1,5 +1,5 @@
 // Intense Datamatics Techno Visualization with Enhanced Glitch
-// No auto cycle, switch on stop/move lift, added datamosh, spiral fractal, mandelbrot
+// No auto cycle, switch on stop/move lift, added datamosh, spiral fractal, mandelbrot, more patterns, audio reactivity
 
 const canvas = document.getElementById('fractalCanvas');
 const ctx = canvas.getContext('2d');
@@ -9,6 +9,31 @@ let mouseX = 0.5;
 let mouseY = 0.5;
 let time = 0;
 let currentPattern = 0;
+
+// Audio reactivity
+let audioContext;
+let analyser;
+let dataArray;
+let audioInitialized = false;
+
+// Mobile optimization
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function initAudio() {
+    if (audioInitialized) return;
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            const source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            audioInitialized = true;
+        })
+        .catch(err => console.log('Audio access denied'));
+}
 
 // Constants
 const TEMPO = 128 / 60;
@@ -30,21 +55,24 @@ window.addEventListener('resize', resizeCanvas);
 document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX / width;
     mouseY = e.clientY / height;
+    if (!audioInitialized) initAudio();
 });
 
 document.addEventListener('touchmove', (e) => {
     if (e.touches.length > 0) {
-        mouseX = e.touches[0].clientX / width;
+        // Only vertical for mobile, no lateral
         mouseY = e.touches[0].clientY / height;
+        mouseX = 0.5; // Fixed for touch
     }
+    if (!audioInitialized) initAudio();
 });
 
 document.addEventListener('touchend', () => {
-    currentPattern = (currentPattern + 1) % 6;
+    currentPattern = (currentPattern + 1) % 9;
 });
 
 document.addEventListener('click', () => {
-    currentPattern = (currentPattern + 1) % 6;
+    currentPattern = (currentPattern + 1) % 9;
 });
 
 // Pulse
@@ -54,7 +82,7 @@ function pulseScale() {
 
 // Data stream
 function drawDataStream() {
-    const density = 100 + mouseX * 100;
+    const density = (isMobile ? 50 : 100) + mouseX * (isMobile ? 50 : 100);
     const speed = 10 + mouseY * 20;
     
     for (let i = 0; i < density; i++) {
@@ -100,7 +128,7 @@ function drawDataField() {
     const imageData = ctx.createImageData(width, height);
     const data = imageData.data;
     
-    const maxIterations = 60;
+    const maxIterations = isMobile ? 30 : 60;
     const zoom = 1.3 + mouseX * 0.6 + 0.3 * Math.sin(time * PULSE_FREQ);
     const cX = -0.75 + mouseX * 0.25;
     const cY = 0.2 + mouseY * 0.15;
@@ -228,7 +256,7 @@ function drawMandelbrot() {
     const imageData = ctx.createImageData(width, height);
     const data = imageData.data;
     
-    const maxIterations = 60;
+    const maxIterations = isMobile ? 30 : 60;
     const zoom = 1.3 + mouseX * 0.6 + 0.3 * Math.sin(time * PULSE_FREQ);
     
     for (let px = 0; px < width; px += 2) {
@@ -239,9 +267,9 @@ function drawMandelbrot() {
             let y = 0;
             let iteration = 0;
             while (x * x + y * y <= 4 && iteration < maxIterations) {
-                const xtemp = x * x - y * y + x0;
+                const xTemp = x * x - y * y + x0;
                 y = 2 * x * y + y0;
-                x = xtemp;
+                x = xTemp;
                 iteration++;
             }
             
@@ -261,6 +289,114 @@ function drawMandelbrot() {
     }
     
     ctx.putImageData(imageData, 0, 0);
+}
+
+// Dragon Curve
+function drawDragonCurve() {
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.lineWidth = 2 * pulseScale();
+    ctx.beginPath();
+    
+    let x = width / 2;
+    let y = height / 2;
+    let angle = 0;
+    const length = 5 + mouseY * 10;
+    const iterations = (isMobile ? 8 : 10) + Math.floor(mouseX * 5);
+    
+    function dragon(iter, dir) {
+        if (iter === 0) {
+            const endX = x + length * Math.cos(angle);
+            const endY = y + length * Math.sin(angle);
+            ctx.moveTo(x, y);
+            ctx.lineTo(endX, endY);
+            x = endX;
+            y = endY;
+            return;
+        }
+        dragon(iter - 1, 1);
+        angle += dir * Math.PI / 2;
+        dragon(iter - 1, -1);
+    }
+    
+    dragon(iterations, 1);
+    ctx.stroke();
+}
+
+// Barnsley Fern
+function drawBarnsleyFern() {
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
+    const points = isMobile ? 2000 : 5000;
+    let x = 0;
+    let y = 0;
+    
+    for (let i = 0; i < points; i++) {
+        const r = Math.random();
+        let nx, ny;
+        if (r < 0.01) {
+            nx = 0;
+            ny = 0.16 * y;
+        } else if (r < 0.86) {
+            nx = 0.85 * x + 0.04 * y;
+            ny = -0.04 * x + 0.85 * y + 1.6;
+        } else if (r < 0.93) {
+            nx = 0.2 * x - 0.26 * y;
+            ny = 0.23 * x + 0.22 * y + 1.6;
+        } else {
+            nx = -0.15 * x + 0.28 * y;
+            ny = 0.26 * x + 0.24 * y + 0.44;
+        }
+        x = nx;
+        y = ny;
+        const px = width / 2 + x * 50 + mouseX * 100 - 50;
+        const py = height - y * 50 - mouseY * 100;
+        ctx.fillRect(px, py, 1, 1);
+    }
+}
+
+// Koch Snowflake
+function drawKochSnowflake() {
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.lineWidth = 1;
+    
+    const size = Math.min(width, height) * 0.3;
+    const iterations = (isMobile ? 3 : 4) + Math.floor(mouseX * 2);
+    
+    function koch(x1, y1, x2, y2, iter) {
+        if (iter === 0) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            return;
+        }
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const x3 = x1 + dx / 3;
+        const y3 = y1 + dy / 3;
+        const x4 = x1 + 2 * dx / 3;
+        const y4 = y1 + 2 * dy / 3;
+        const x5 = x3 + (x4 - x3) * Math.cos(Math.PI / 3) - (y4 - y3) * Math.sin(Math.PI / 3);
+        const y5 = y3 + (x4 - x3) * Math.sin(Math.PI / 3) + (y4 - y3) * Math.cos(Math.PI / 3);
+        
+        koch(x1, y1, x3, y3, iter - 1);
+        koch(x3, y3, x5, y5, iter - 1);
+        koch(x5, y5, x4, y4, iter - 1);
+        koch(x4, y4, x2, y2, iter - 1);
+    }
+    
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const angle = time * 0.1;
+    
+    for (let i = 0; i < 3; i++) {
+        const a1 = angle + i * 2 * Math.PI / 3;
+        const a2 = angle + (i + 1) * 2 * Math.PI / 3;
+        const x1 = centerX + size * Math.cos(a1);
+        const y1 = centerY + size * Math.sin(a1);
+        const x2 = centerX + size * Math.cos(a2);
+        const y2 = centerY + size * Math.sin(a2);
+        koch(x1, y1, x2, y2, iterations);
+    }
 }
 
 // Pixel sort
@@ -359,11 +495,18 @@ function applyGlitch() {
 function animate() {
     time += 0.02;
     
+    // Audio reactivity
+    let audioLevel = 0;
+    if (audioInitialized) {
+        analyser.getByteFrequencyData(dataArray);
+        audioLevel = dataArray.reduce((a, b) => a + b) / dataArray.length / 255;
+    }
+    
     ctx.fillStyle = `rgba(0, 0, 0, ${FADE_OPACITY})`;
     ctx.fillRect(0, 0, width, height);
     
-    // Flash
-    if (Math.sin(time * PULSE_FREQ * Math.PI * 2) > FLASH_THRESHOLD) {
+    // Flash modulated by audio
+    if (Math.sin(time * PULSE_FREQ * Math.PI * 2) > FLASH_THRESHOLD - audioLevel * 0.2) {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
         ctx.fillRect(0, 0, width, height);
     }
@@ -402,10 +545,19 @@ function animate() {
         case 5:
             drawMandelbrot();
             break;
+        case 6:
+            drawDragonCurve();
+            break;
+        case 7:
+            drawBarnsleyFern();
+            break;
+        case 8:
+            drawKochSnowflake();
+            break;
     }
     
-    // Glitch
-    if (Math.sin(time * GLITCH_FREQ * Math.PI * 2) > 0.95) {
+    // Glitch modulated by audio
+    if (Math.sin(time * GLITCH_FREQ * Math.PI * 2) > 0.95 - audioLevel * 0.1) {
         applyGlitch();
     }
     
