@@ -1,0 +1,7 @@
+Please copy your real favicon file from:
+
+H:\DEDALO101 SITES\benyfabicon\favicon.ico
+
+into this repository root and name it exactly: favicon.ico
+
+After copying, refresh your site to see the favicon. If your favicon is a PNG, rename it to `favicon.png` and update the <link rel="icon"> tag in `index.html` accordingly.
