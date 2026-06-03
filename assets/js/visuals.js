@@ -8,6 +8,9 @@
   const PTR = { x: window.innerWidth / 2, y: window.innerHeight / 2, nx: 0, ny: 0 };
   const BPM = 145;
   const BEAT_SEC = 60 / BPM;
+  /** Wave scroll rate — one visual cycle ≈ quarter-note at 145 BPM */
+  const WAVE_SCROLL = BPM * 0.078;
+  const GRID_STEP = BPM * 0.00048;
 
   function setPointer(x, y) {
     PTR.x = x;
@@ -74,7 +77,7 @@
       const cx = W * 0.5 + PTR.nx * W * 0.22;
       const cy = H * 0.5 + PTR.ny * H * 0.18;
       const step = Math.max(isMobile() ? 40 : 30, Math.floor(W / 16));
-      gridT += 0.03;
+      gridT += GRID_STEP;
 
       for (let x = step / 2; x < W; x += step) {
         for (let y = step / 2; y < H; y += step) {
@@ -127,7 +130,8 @@
         for (let px = 0; px <= W; px += 2) {
           const t2 =
             (px / W) * Math.PI * 2 * layer.freq +
-            elapsed * 3.5 * layer.freq +
+            elapsed * WAVE_SCROLL * layer.freq +
+            beatPhase * Math.PI * 2 +
             PTR.nx * 0.6 +
             li * 0.5;
           const y = cy + distortedSine(t2, drive) * amp;
@@ -143,23 +147,25 @@
     function drawKickBurst(beatPhase) {
       const env = kickEnv(beatPhase);
       if (env < 0.05) return;
+      const m = isMobile() ? 0.45 : 0.75;
       const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W * 0.5);
-      g.addColorStop(0, `rgba(255,40,80,${(env * 0.2).toFixed(2)})`);
-      g.addColorStop(0.35, `rgba(0,255,224,${(env * 0.1).toFixed(2)})`);
+      g.addColorStop(0, `rgba(255,40,80,${(env * 0.12 * m).toFixed(2)})`);
+      g.addColorStop(0.35, `rgba(0,255,224,${(env * 0.06 * m).toFixed(2)})`);
       g.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
     }
 
     function drawGlitch(intensity) {
-      const n = 2 + Math.floor(intensity * 8);
+      const scale = isMobile() ? 0.35 : 0.55;
+      const n = 1 + Math.floor(intensity * 3 * scale);
       for (let i = 0; i < n; i++) {
         const y = Math.random() * H;
-        const h2 = 2 + Math.random() * 6;
-        const shift = (Math.random() - 0.5) * 40 * intensity;
-        ctx.fillStyle = `rgba(0,255,224,${(0.08 + Math.random() * 0.15).toFixed(2)})`;
+        const h2 = 1 + Math.random() * 3;
+        const shift = (Math.random() - 0.5) * 18 * intensity * scale;
+        ctx.fillStyle = `rgba(0,255,224,${(0.03 + Math.random() * 0.06 * intensity).toFixed(2)})`;
         ctx.fillRect(shift, y, W, h2);
-        ctx.fillStyle = `rgba(255,40,80,${(0.05 + Math.random() * 0.1).toFixed(2)})`;
+        ctx.fillStyle = `rgba(255,40,80,${(0.02 + Math.random() * 0.04 * intensity).toFixed(2)})`;
         ctx.fillRect(-shift * 0.5, y + 1, W, 1);
       }
     }
@@ -176,15 +182,18 @@
 
       if (beatN !== lastBeat) {
         lastBeat = beatN;
-        glitchUntil = ts + (beatN % 4 === 0 ? 140 : 45);
-        if (beatN % 4 === 0) {
-          strobeUntil = ts + 40;
+        const bar = beatN % 16 === 0;
+        const flashBar = isMobile() ? beatN % 16 === 0 : beatN % 8 === 0;
+        if (bar) glitchUntil = ts + (isMobile() ? 50 : 70);
+        if (flashBar && !isMobile()) {
+          strobeUntil = ts + 22;
           document.body.classList.add('beat-flash');
-          setTimeout(() => document.body.classList.remove('beat-flash'), 80);
+          setTimeout(() => document.body.classList.remove('beat-flash'), 45);
         }
       }
 
-      const glitchInt = ts < glitchUntil ? Math.min(1, (glitchUntil - ts) / 120) : 0;
+      const glitchInt =
+        ts < glitchUntil ? Math.min(0.5, (glitchUntil - ts) / 80) * (isMobile() ? 0.4 : 0.65) : 0;
 
       ctx.fillStyle = '#030308';
       ctx.fillRect(0, 0, W, H);
@@ -195,8 +204,10 @@
 
       if (glitchInt > 0) drawGlitch(glitchInt);
 
-      if (ts < strobeUntil) {
-        ctx.fillStyle = `rgba(255,255,255,${(0.35 * (1 - (ts - (strobeUntil - 40)) / 40)).toFixed(2)})`;
+      if (ts < strobeUntil && !isMobile()) {
+        const dur = 22;
+        const a = 0.1 * (1 - (ts - (strobeUntil - dur)) / dur);
+        ctx.fillStyle = `rgba(255,255,255,${Math.max(0, a).toFixed(2)})`;
         ctx.fillRect(0, 0, W, H);
       }
     }
