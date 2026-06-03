@@ -39,7 +39,11 @@ html, body {
 
 body.visuals-ready #bg-canvas {
   opacity: 1;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.5s ease;
+}
+
+body.visuals-ready .scanlines {
+  opacity: 0.85;
 }
 
 .vignette {
@@ -118,6 +122,62 @@ body.visuals-ready #bg-canvas {
 }
 
 /* ── Hero ───────────────────────────────────────────────────────── */
+.title-wrap {
+  position: relative;
+  display: inline-block;
+  margin: 0 auto;
+  padding: 12px 8px;
+}
+
+#title-canvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.title-wrap .title {
+  position: relative;
+  z-index: 1;
+  transition: text-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.title--charged {
+  text-shadow:
+    -3px 0 0 rgba(255, 40, 80, 0.75),
+    3px 0 0 rgba(0, 255, 224, 0.65),
+    0 0 40px rgba(0, 255, 224, 0.35),
+    0 0 80px rgba(255, 40, 80, 0.15);
+  filter: brightness(1.08);
+}
+
+body.beat-flash .title--charged,
+body.beat-flash .title {
+  animation: titleSpark 0.09s ease-out;
+}
+
+@keyframes titleSpark {
+  0% { filter: brightness(1.4); }
+  100% { filter: brightness(1); }
+}
+
+body.beat-flash::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.04);
+  animation: screenFlash 0.1s ease-out forwards;
+}
+
+@keyframes screenFlash {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 .eyebrow {
   display: block;
   font-size: clamp(8px, 1vw, 10px);
