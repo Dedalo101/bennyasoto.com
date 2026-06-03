@@ -1,8 +1,9 @@
 /* Benny Yasoto — theme (Dedalo101 artist site) */
 :root {
   --bg: #030308;
-  --cyan: #00ffe0;
-  --magenta: #ff2850;
+  --red: #ff3355;
+  --red-hot: #ff5570;
+  --red-deep: #c41835;
   --text: #e8e8f0;
   --dim: rgba(232, 232, 240, 0.45);
   --faint: rgba(232, 232, 240, 0.18);
@@ -101,7 +102,7 @@ body.visuals-ready .scanlines {
   transition: color 0.2s;
 }
 
-.meta a:hover { color: var(--cyan); }
+.meta a:hover { color: var(--red); }
 
 .meta-sep { color: var(--faint); pointer-events: none; }
 
@@ -110,7 +111,7 @@ body.visuals-ready .scanlines {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--magenta);
+  background: var(--red);
   margin-right: 6px;
   vertical-align: middle;
   animation: throb 2.4s ease-in-out infinite;
@@ -147,9 +148,9 @@ body.visuals-ready .scanlines {
 .title--charged {
   text-shadow:
     -3px 0 0 rgba(255, 40, 80, 0.75),
-    3px 0 0 rgba(0, 255, 224, 0.65),
-    0 0 40px rgba(0, 255, 224, 0.35),
-    0 0 80px rgba(255, 40, 80, 0.15);
+    3px 0 0 rgba(255, 85, 95, 0.55),
+    0 0 40px rgba(255, 51, 85, 0.4),
+    0 0 80px rgba(196, 24, 53, 0.2);
   filter: brightness(1.08);
 }
 
@@ -190,7 +191,7 @@ body.beat-flash::after {
   display: block;
   font-size: clamp(8px, 1vw, 10px);
   letter-spacing: 0.55em;
-  color: rgba(0, 255, 224, 0.35);
+  color: rgba(255, 51, 85, 0.45);
   text-transform: uppercase;
   margin-bottom: clamp(12px, 2vh, 24px);
 }
@@ -203,9 +204,9 @@ body.beat-flash::after {
   text-transform: uppercase;
   color: #fff;
   text-shadow:
-    -2px 0 0 rgba(255, 40, 80, 0.35),
-    2px 0 0 rgba(0, 255, 224, 0.25),
-    0 0 60px rgba(0, 255, 224, 0.08);
+    -2px 0 0 rgba(255, 40, 80, 0.4),
+    2px 0 0 rgba(255, 85, 95, 0.3),
+    0 0 60px rgba(255, 51, 85, 0.12);
   user-select: none;
 }
 
@@ -214,7 +215,7 @@ body.beat-flash::after {
   width: clamp(48px, 12vw, 120px);
   height: 1px;
   margin: clamp(14px, 2vh, 22px) auto;
-  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
   opacity: 0.4;
 }
 
@@ -236,16 +237,16 @@ body.beat-flash::after {
   text-transform: uppercase;
   color: var(--text);
   background: transparent;
-  border: 1px solid rgba(0, 255, 224, 0.35);
+  border: 1px solid rgba(255, 51, 85, 0.4);
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
 .btn-bio:hover,
 .btn-bio:focus-visible {
-  border-color: var(--cyan);
-  color: var(--cyan);
-  box-shadow: 0 0 24px rgba(0, 255, 224, 0.15);
+  border-color: var(--red);
+  color: var(--red);
+  box-shadow: 0 0 24px rgba(255, 51, 85, 0.2);
   outline: none;
 }
 
@@ -273,13 +274,13 @@ body.beat-flash::after {
   left: 0;
   height: 1px;
   width: 0;
-  background: var(--cyan);
+  background: var(--red);
   transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .link:hover::after { width: 100%; }
 .link:hover .l-name { color: #fff; }
-.link:hover .l-plat { color: var(--cyan); }
+.link:hover .l-plat { color: var(--red); }
 
 .l-plat {
   font-size: clamp(8px, 1vw, 10px);
@@ -327,7 +328,7 @@ body.beat-flash::after {
   scrollbar-width: thin;
   scrollbar-color: var(--faint) transparent;
   background: rgba(8, 8, 16, 0.98);
-  border: 1px solid rgba(0, 255, 224, 0.2);
+  border: 1px solid rgba(255, 51, 85, 0.25);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
   padding: clamp(20px, 4vw, 36px);
 }
@@ -349,8 +350,8 @@ body.beat-flash::after {
 
 .bio-modal__close:hover,
 .bio-modal__close:focus-visible {
-  color: var(--cyan);
-  border-color: var(--cyan);
+  color: var(--red);
+  border-color: var(--red);
   outline: none;
 }
 
@@ -365,7 +366,7 @@ body.beat-flash::after {
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
-  border: 1px solid rgba(0, 255, 224, 0.15);
+  border: 1px solid rgba(255, 51, 85, 0.2);
   filter: contrast(1.05) saturate(0.9);
 }
 
@@ -381,7 +382,7 @@ body.beat-flash::after {
 .bio-modal__subtitle {
   font-size: clamp(8px, 0.95vw, 10px);
   letter-spacing: 0.25em;
-  color: rgba(0, 255, 224, 0.5);
+  color: rgba(255, 51, 85, 0.55);
   text-transform: uppercase;
   margin-bottom: 18px;
 }

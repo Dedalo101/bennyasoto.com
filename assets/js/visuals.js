@@ -11,6 +11,7 @@
   /** Wave scroll rate — one visual cycle ≈ quarter-note at 145 BPM */
   const WAVE_SCROLL = BPM * 0.078;
   const GRID_STEP = BPM * 0.00048;
+  const C = { main: '255,40,80', hot: '255,85,95', deep: '196,24,53' };
 
   function setPointer(x, y) {
     PTR.x = x;
@@ -85,14 +86,14 @@
           const wave = Math.sin(gridT * 2.8 - d * 0.018) * 0.5 + 0.5;
           ctx.beginPath();
           ctx.arc(x, y, 2.5 * wave + 0.6, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(0,255,224,${(wave * 0.55 + 0.12).toFixed(2)})`;
+          ctx.fillStyle = `rgba(${C.main},${(wave * 0.55 + 0.12).toFixed(2)})`;
           ctx.fill();
           if (x + step < W) {
             const w2 = Math.sin(gridT * 2.8 - (d + step * 0.5) * 0.018) * 0.5 + 0.5;
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.lineTo(x + step, y);
-            ctx.strokeStyle = `rgba(255,40,80,${(wave * w2 * 0.22).toFixed(2)})`;
+            ctx.strokeStyle = `rgba(${C.deep},${(wave * w2 * 0.22).toFixed(2)})`;
             ctx.lineWidth = 0.8;
             ctx.stroke();
           }
@@ -104,7 +105,7 @@
         const al = Math.max(0, 0.35 - ring * 0.06);
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(0,255,224,${al.toFixed(2)})`;
+        ctx.strokeStyle = `rgba(${C.main},${al.toFixed(2)})`;
         ctx.lineWidth = 1;
         ctx.stroke();
       }
@@ -120,9 +121,9 @@
       const amp = (0.28 + kEnv * 0.55) * H * 0.42;
 
       const layers = [
-        { freq, col: 'rgba(0,255,224,', lw: 2.5 },
-        { freq: freq * 0.5, col: 'rgba(255,40,80,', lw: 1.5 },
-        { freq: freq * 1.8, col: 'rgba(255,255,255,', lw: 0.8 },
+        { freq, col: `rgba(${C.main},`, lw: 2.5 },
+        { freq: freq * 0.5, col: `rgba(${C.deep},`, lw: 1.5 },
+        { freq: freq * 1.8, col: `rgba(${C.hot},`, lw: 0.8 },
       ];
 
       layers.forEach((layer, li) => {
@@ -149,8 +150,8 @@
       if (env < 0.05) return;
       const m = isMobile() ? 0.45 : 0.75;
       const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W * 0.5);
-      g.addColorStop(0, `rgba(255,40,80,${(env * 0.12 * m).toFixed(2)})`);
-      g.addColorStop(0.35, `rgba(0,255,224,${(env * 0.06 * m).toFixed(2)})`);
+      g.addColorStop(0, `rgba(${C.main},${(env * 0.12 * m).toFixed(2)})`);
+      g.addColorStop(0.35, `rgba(${C.deep},${(env * 0.06 * m).toFixed(2)})`);
       g.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
@@ -163,9 +164,9 @@
         const y = Math.random() * H;
         const h2 = 1 + Math.random() * 3;
         const shift = (Math.random() - 0.5) * 18 * intensity * scale;
-        ctx.fillStyle = `rgba(0,255,224,${(0.03 + Math.random() * 0.06 * intensity).toFixed(2)})`;
+        ctx.fillStyle = `rgba(${C.main},${(0.03 + Math.random() * 0.06 * intensity).toFixed(2)})`;
         ctx.fillRect(shift, y, W, h2);
-        ctx.fillStyle = `rgba(255,40,80,${(0.02 + Math.random() * 0.04 * intensity).toFixed(2)})`;
+        ctx.fillStyle = `rgba(${C.hot},${(0.02 + Math.random() * 0.04 * intensity).toFixed(2)})`;
         ctx.fillRect(-shift * 0.5, y + 1, W, 1);
       }
     }
@@ -297,8 +298,8 @@
         b.life -= 0.07;
         if (b.life <= 0) return false;
         const col = b.hue
-          ? `rgba(255,40,80,${(b.life * 0.9).toFixed(2)})`
-          : `rgba(0,255,224,${(b.life * 0.95).toFixed(2)})`;
+          ? `rgba(${C.deep},${(b.life * 0.9).toFixed(2)})`
+          : `rgba(${C.main},${(b.life * 0.95).toFixed(2)})`;
         ctx.strokeStyle = col;
         ctx.lineWidth = 1.2 + b.life * 2;
         ctx.beginPath();
