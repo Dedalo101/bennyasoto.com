@@ -1,75 +1,164 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="BENNY YASOTO - Underground Techno Label. Producer and selector specializing in infinite patterns within the groove.">
-    <meta name="keywords" content="Benny Yasoto, Techno, Electronic Music, Producer, Selector, Underground">
-    <meta name="author" content="Benny Yasoto">
-    <title>YASOTO | INFINITE PATTERN</title>
-    <link rel="icon" href="favicon.ico">
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Benny Yasoto — DJ y productor de techno de Málaga. Residente de Orion Pro. Hard techno, techno raw e industrial. Más de 20 años en la escena.">
+<meta name="keywords" content="Benny Yasoto, techno Málaga, hard techno, Orion Pro, Glue Records, DJ España, techno industrial">
+<meta name="author" content="Benny Yasoto">
+<meta name="theme-color" content="#030308">
+<meta name="color-scheme" content="dark">
+<title>Benny Yasoto · Hard Techno · Málaga</title>
+
+<link rel="canonical" href="https://bennyasoto.com/">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Benny Yasoto · Hard Techno · Málaga">
+<meta property="og:description" content="DJ malagueño, residente de Orion Pro. Techno raw e industrial con más de 20 años de trayectoria.">
+<meta property="og:url" content="https://bennyasoto.com/">
+<meta property="og:image" content="https://bennyasoto.com/assets/images/benny-yasoto.webp">
+<meta property="og:locale" content="es_ES">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Benny Yasoto">
+<meta name="twitter:description" content="Hard techno · Raw · Málaga · Orion Pro">
+<meta name="twitter:image" content="https://bennyasoto.com/assets/images/benny-yasoto.webp">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MusicGroup",
+  "name": "Benny Yasoto",
+  "url": "https://bennyasoto.com",
+  "image": "https://bennyasoto.com/assets/images/benny-yasoto.webp",
+  "genre": ["Techno", "Hard Techno", "Industrial Techno", "Electronic"],
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Málaga",
+    "addressCountry": "ES"
+  },
+  "memberOf": {
+    "@type": "MusicGroup",
+    "name": "Glue Records",
+    "url": "https://gluerecords.club"
+  },
+  "sameAs": [
+    "https://gluerecords.club",
+    "https://www.instagram.com/bennyyasoto/"
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="assets/css/theme.css" as="style">
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap"></noscript>
 </head>
 <body>
-    <canvas id="fractalCanvas"></canvas>
-    
-    <div class="overlay">
-        <!-- LEFT PANEL -->
-        <div class="left-panel">
-            <div class="label-bar">YASOTO</div>
-            <div class="artist-info">
-                <h1 class="artist-name">BENNY<br/>YASOTO</h1>
-                <div class="divider"></div>
-                <div class="role">PRODUCER<br/>SELECTOR<br/>LIVE ELECTRONICS</div>
-            </div>
+
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<div class="shell">
+  <div class="corner-tl meta">
+    <a href="https://gluerecords.club" target="_blank" rel="noopener noreferrer"><span class="pulse"></span>Glue Records</a><br>
+    <span>Orion Pro · Residente desde 2017</span><br>
+    Málaga, España
+  </div>
+
+  <div class="corner-tr meta">
+    Hard Techno<br>
+    Raw · Industrial<br>
+    145 BPM
+  </div>
+
+  <div class="center">
+    <span class="eyebrow">Infinite pattern</span>
+    <h1 class="title" id="lcp-title">Benny<br>Yasoto</h1>
+    <span class="rule" aria-hidden="true"></span>
+    <p class="tagline">Inside the groove</p>
+    <button type="button" class="btn-bio" id="bio-open" aria-haspopup="dialog" aria-controls="bio-modal">
+      Biografía
+    </button>
+  </div>
+
+  <nav class="corner-bl links" aria-label="Enlaces">
+    <a href="https://gluerecords.club" target="_blank" rel="noopener noreferrer" class="link">
+      <span class="l-plat">Sello</span>
+      <span class="l-name">Glue Records</span>
+    </a>
+    <a href="https://www.instagram.com/bennyyasoto/" target="_blank" rel="noopener noreferrer" class="link">
+      <span class="l-plat">Social</span>
+      <span class="l-name">Instagram</span>
+    </a>
+    <a href="mailto:bookings@bennyasoto.com" class="link">
+      <span class="l-plat">Contacto</span>
+      <span class="l-name">Bookings</span>
+    </a>
+  </nav>
+
+  <div class="corner-br meta">
+    <span>Producer · Selector · Live</span><br>
+    <span style="color:var(--faint)">© 2026 Benny Yasoto</span>
+  </div>
+</div>
+
+<div class="bio-modal" id="bio-modal" role="dialog" aria-modal="true" aria-labelledby="bio-title" aria-hidden="true">
+  <div class="bio-modal__dialog">
+    <button type="button" class="bio-modal__close" id="bio-close" aria-label="Cerrar biografía">×</button>
+    <div class="bio-modal__grid">
+      <picture>
+        <source type="image/webp" srcset="assets/images/benny-yasoto.webp">
+        <img
+          class="bio-modal__photo"
+          src="assets/images/benny-yasoto.jpg"
+          width="400"
+          height="400"
+          alt="Benny Yasoto — DJ y productor de techno"
+          loading="lazy"
+          decoding="async"
+        >
+      </picture>
+      <div>
+        <h2 class="bio-modal__title" id="bio-title">Benny Yasoto</h2>
+        <p class="bio-modal__subtitle">DJ · Málaga · Orion Pro</p>
+        <div class="bio-modal__text">
+          <p>
+            <strong>Benny Yasoto</strong> es un DJ malagueño con raíces orientales y más de veinte años en la escena electrónica.
+            Con apenas trece años consiguió su primera residencia en el Squirrel Club de Estepona, donde empezó a definir
+            su sonido entre electro y techno experimental, y formó parte del colectivo <strong>Elevation</strong>.
+          </p>
+          <p>
+            En el año 2000 dio un salto decisivo con la residencia en <strong>Rubí Club</strong>, explorando líneas más
+            minimalistas sin abandonar sus referentes. En esa etapa se integró en el colectivo <strong>Toys</strong>, ampliando
+            su presencia en la costa malagueña.
+          </p>
+          <p>
+            En 2003, con el apoyo de Toys y de <strong>Miga-label</strong> —uno de los primeros net-labels europeos en su
+            trayectoria— consolidó su lugar en el circuito. Desde entonces forma parte de <strong>Orion Pro</strong> como
+            residente (desde 2017), uno de los pilares del techno en Málaga, con actuaciones por gran parte de España y
+            presencia internacional.
+          </p>
+          <p>
+            Ha compartido cabina con referentes como <strong>The Advent</strong>, <strong>Óscar Mulero</strong>,
+            <strong>Ben Sims</strong> y <strong>Ken Ishii</strong>, afianzándose como una figura clave del techno malagueño
+            a nivel local y nacional.
+          </p>
         </div>
-
-        <!-- CENTER CONTENT -->
-        <div class="center-content">
-            <header class="main-header">
-                <div class="glitch-box" data-text="INFINITE PATTERN">
-                    <h1 class="glitch" data-text="INFINITE PATTERN">INFINITE PATTERN</h1>
-                </div>
-            </header>
-
-            <main class="interactive-zone">
-                <div class="pattern-display">
-                    <p class="pattern-label" id="patternLabel">PATTERN: DATA STREAM</p>
-                    <div class="pattern-border"></div>
-                </div>
-                
-                <div class="click-instruction">
-                    [CLICK TO CYCLE] [MOVE TO INTERACT]
-                </div>
-            </main>
-        </div>
-
-        <!-- RIGHT PANEL -->
-        <div class="right-panel">
-            <div class="info-box">
-                <p class="info-title">INSIDE THE GROOVE</p>
-                <p class="info-text">Techno. Pure. Raw. Infinite.</p>
-            </div>
-            <div class="patterns-list">
-                <p class="list-title">PATTERNS:</p>
-                <ul>
-                    <li>● DATA STREAM</li>
-                <li>● JULIA SET</li>
-                <li>● SPIRAL CHAOS</li>
-                <li>● MANDELBROT</li>
-                <li>● DRAGON FRACTAL</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- FOOTER BAND -->
-        <footer class="footer-band">
-            <div class="footer-item">NO COMPROMISE</div>
-            <div class="footer-item">PURE TECHNO</div>
-            <div class="footer-item">UNDERGROUND LABEL</div>
-        </footer>
+      </div>
     </div>
-    
-    <script src="fractal.js"></script>
+  </div>
+</div>
+
+<script src="assets/js/bio-modal.js" defer></script>
+<script src="assets/js/visuals.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,352 @@
+/* Benny Yasoto — theme (Dedalo101 artist site) */
+:root {
+  --bg: #030308;
+  --cyan: #00ffe0;
+  --magenta: #ff2850;
+  --text: #e8e8f0;
+  --dim: rgba(232, 232, 240, 0.45);
+  --faint: rgba(232, 232, 240, 0.18);
+  --font-mono: 'Share Tech Mono', ui-monospace, 'Cascadia Mono', monospace;
+  --font-display: 'Special Elite', Georgia, serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  color-scheme: dark;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  overflow-x: hidden;
+}
+
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+body.visuals-ready #bg-canvas {
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 80% at 50% 45%, transparent 20%, rgba(3, 3, 8, 0.85) 100%);
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 3px
+  );
+}
+
+/* ── Shell grid (Glue-inspired corners) ─────────────────────────── */
+.shell {
+  position: relative;
+  z-index: 10;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-rows: 1fr auto 1fr;
+  padding: clamp(20px, 4vh, 56px) clamp(20px, 4vw, 72px);
+  pointer-events: none;
+}
+
+.corner-tl { grid-column: 1; grid-row: 1; align-self: start; justify-self: start; }
+.corner-tr { grid-column: 3; grid-row: 1; align-self: start; justify-self: end; text-align: right; }
+.corner-bl { grid-column: 1; grid-row: 3; align-self: end; justify-self: start; }
+.corner-br { grid-column: 3; grid-row: 3; align-self: end; justify-self: end; text-align: right; }
+.center { grid-column: 2; grid-row: 2; align-self: center; justify-self: center; text-align: center; pointer-events: all; }
+
+.meta {
+  font-size: clamp(9px, 1vw, 11px);
+  letter-spacing: 0.2em;
+  line-height: 2;
+  color: var(--dim);
+  text-transform: uppercase;
+  pointer-events: all;
+}
+
+.meta a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.meta a:hover { color: var(--cyan); }
+
+.meta-sep { color: var(--faint); pointer-events: none; }
+
+.pulse {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--magenta);
+  margin-right: 6px;
+  vertical-align: middle;
+  animation: throb 2.4s ease-in-out infinite;
+}
+
+@keyframes throb {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.7); }
+}
+
+/* ── Hero ───────────────────────────────────────────────────────── */
+.eyebrow {
+  display: block;
+  font-size: clamp(8px, 1vw, 10px);
+  letter-spacing: 0.55em;
+  color: rgba(0, 255, 224, 0.35);
+  text-transform: uppercase;
+  margin-bottom: clamp(12px, 2vh, 24px);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 12vw, 128px);
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow:
+    -2px 0 0 rgba(255, 40, 80, 0.35),
+    2px 0 0 rgba(0, 255, 224, 0.25),
+    0 0 60px rgba(0, 255, 224, 0.08);
+  user-select: none;
+}
+
+.rule {
+  display: block;
+  width: clamp(48px, 12vw, 120px);
+  height: 1px;
+  margin: clamp(14px, 2vh, 22px) auto;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.4;
+}
+
+.tagline {
+  font-size: clamp(9px, 1.1vw, 11px);
+  letter-spacing: 0.38em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+/* ── Bio button ─────────────────────────────────────────────────── */
+.btn-bio {
+  display: inline-block;
+  margin-top: clamp(18px, 3vh, 28px);
+  padding: 12px 28px;
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1vw, 11px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid rgba(0, 255, 224, 0.35);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.btn-bio:hover,
+.btn-bio:focus-visible {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 24px rgba(0, 255, 224, 0.15);
+  outline: none;
+}
+
+/* ── Links ──────────────────────────────────────────────────────── */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: all;
+}
+
+.link {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  width: 0;
+  background: var(--cyan);
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.link:hover::after { width: 100%; }
+.link:hover .l-name { color: #fff; }
+.link:hover .l-plat { color: var(--cyan); }
+
+.l-plat {
+  font-size: clamp(8px, 1vw, 10px);
+  letter-spacing: 0.22em;
+  color: var(--faint);
+  text-transform: uppercase;
+}
+
+.l-name {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 3vw, 22px);
+  letter-spacing: 0.04em;
+  color: var(--dim);
+  transition: color 0.2s;
+}
+
+/* ── Bio modal ──────────────────────────────────────────────────── */
+.bio-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 40px);
+  background: rgba(3, 3, 8, 0.88);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+  pointer-events: none;
+}
+
+.bio-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+
+.bio-modal__dialog {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: min(90vh, 820px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--faint) transparent;
+  background: rgba(8, 8, 16, 0.98);
+  border: 1px solid rgba(0, 255, 224, 0.2);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  padding: clamp(20px, 4vw, 36px);
+}
+
+.bio-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--dim);
+  background: none;
+  border: 1px solid var(--faint);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.bio-modal__close:hover,
+.bio-modal__close:focus-visible {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  outline: none;
+}
+
+.bio-modal__grid {
+  display: grid;
+  grid-template-columns: minmax(120px, 200px) 1fr;
+  gap: clamp(16px, 3vw, 28px);
+  align-items: start;
+}
+
+.bio-modal__photo {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid rgba(0, 255, 224, 0.15);
+  filter: contrast(1.05) saturate(0.9);
+}
+
+.bio-modal__title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 4vw, 32px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.bio-modal__subtitle {
+  font-size: clamp(8px, 0.95vw, 10px);
+  letter-spacing: 0.25em;
+  color: rgba(0, 255, 224, 0.5);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.bio-modal__text {
+  font-size: clamp(12px, 1.35vw, 14px);
+  line-height: 1.75;
+  letter-spacing: 0.02em;
+  color: var(--dim);
+  text-transform: none;
+}
+
+.bio-modal__text p + p {
+  margin-top: 1em;
+}
+
+.bio-modal__text strong {
+  color: var(--text);
+  font-weight: 400;
+}
+
+@media (max-width: 560px) {
+  .bio-modal__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bio-modal__photo {
+    max-width: 200px;
+    margin: 0 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse { animation: none; }
+  #bg-canvas { opacity: 0.4; }
+}
