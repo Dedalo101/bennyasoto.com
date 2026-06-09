@@ -604,3 +604,51 @@ nav,
     opacity: 0.55;
   }
 }
+/* a11y: skip link for keyboard users */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  background: #fff;
+  color: #000;
+  padding: 0.5em 1em;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* creative: mechanical slide-in for modals — fast techno feel */
+.site-modal.is-open .site-modal__dialog {
+  animation: modal-in 80ms ease-out both;
+}
+@keyframes modal-in {
+  from { transform: translateY(12px); opacity: 0.6; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* creative: crosshair cursor on pointer devices */
+@media (hover: hover) and (pointer: fine) {
+  html, body, .shell, .shell a, .shell button {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath stroke='%23ff2850' stroke-width='1.2' d='M10 0v20M0 10h20'/%3E%3Ccircle cx='10' cy='10' r='2' fill='%23ff2850'/%3E%3C/svg%3E") 10 10, crosshair;
+  }
+}
+
+/* creative: left-border flash on links modal hover */
+.links-modal__list a {
+  border-left: 2px solid transparent;
+  padding-left: 8px;
+  transition: color 0.2s, padding-left 0.25s, border-color 0.15s;
+}
+.links-modal__list a:hover,
+.links-modal__list a:focus-visible {
+  border-left-color: var(--red);
+  padding-left: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-modal.is-open .site-modal__dialog {
+    animation: none;
+  }
+}
