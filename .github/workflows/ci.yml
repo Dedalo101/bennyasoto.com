@@ -12,10 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate HTML
-        uses: validator/validate-action@v5
+      - uses: actions/setup-node@v4
         with:
-          files: index.html
+          node-version: '22'
+
+      - name: Validate HTML
+        run: npx --yes html-validate index.html
 
   check-links:
     runs-on: ubuntu-latest
