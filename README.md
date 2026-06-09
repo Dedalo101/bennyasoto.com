@@ -7,11 +7,13 @@ Static artist site for **Benny Yasoto** (Dedalo101 architecture).
 ```
 assets/css/theme.css    — visual theme (artist-editable)
 assets/images/          — photos (benny-yasoto.jpg / .webp)
-assets/js/              — visuals + bio modal
-data/                   — PocketBase build output (future)
-js/dedalo-config.js     — optional read-only PB config
+assets/js/              — visuals + modals
 index.html
+robots.txt
+sitemap.xml
 ```
+
+PocketBase / `dedalo-core` sync: deferred until v2 (track in Dedalo101-Core when ready).
 
 ## Links
 

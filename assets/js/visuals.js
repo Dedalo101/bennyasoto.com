@@ -624,7 +624,7 @@
     drawFractalPattern(quality);
     ctx.globalAlpha = 1;
 
-    if (quality.name !== 'low' && Math.sin(time * GLITCH_FREQ * Math.PI * 2) > 0.94) {
+    if (!isMobile && quality.name !== 'low' && Math.sin(time * GLITCH_FREQ * Math.PI * 2) > 0.94) {
       applyGlitch(quality);
     }
   }

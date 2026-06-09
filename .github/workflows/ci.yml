@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate HTML
+        uses: validator/validate-action@v5
+        with:
+          files: index.html
+
+  check-links:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check external links
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: --no-progress --max-retries 2 --timeout 20 index.html
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

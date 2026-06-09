@@ -6,6 +6,7 @@
 <meta name="description" content="Benny Yasoto — DJ y productor de techno de Málaga. Residente de Orion Pro. Hard techno, techno raw e industrial. Más de 20 años en la escena.">
 <meta name="keywords" content="Benny Yasoto, techno Málaga, hard techno, Orion Pro, Glue Records, DJ España, techno industrial">
 <meta name="author" content="Benny Yasoto">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#030308">
 <meta name="color-scheme" content="dark">
 <title>Benny Yasoto · Hard Techno · Málaga</title>
@@ -35,6 +36,7 @@
   "@type": "MusicGroup",
   "name": "Benny Yasoto",
   "url": "https://bennyasoto.com",
+  "description": "DJ y productor de techno con base en Málaga. Residente de Orion Pro. Hard techno, raw e industrial. Más de 20 años en la escena.",
   "image": "https://bennyasoto.com/assets/images/benny-yasoto.webp",
   "genre": ["Techno", "Hard Techno", "Industrial Techno", "Electronic"],
   "address": {
@@ -49,7 +51,10 @@
   },
   "sameAs": [
     "https://gluerecords.club",
-    "https://www.instagram.com/bennyyasoto/"
+    "https://www.instagram.com/bennyyasoto/",
+    "https://ra.co/dj/bennyyasoto",
+    "https://www.beatport.com/artist/benny-yasoto/81478",
+    "https://musiluz.com/staff/benny_yasoto"
   ]
 }
 </script>
@@ -71,7 +76,7 @@ if ('ontouchstart' in window) {
 </head>
 <body>
 
-<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<canvas id="bg-canvas" role="presentation" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
 <div class="scanlines" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
@@ -129,7 +134,7 @@ if ('ontouchstart' in window) {
 
 <div class="site-modal bio-modal" id="bio-modal" role="dialog" aria-modal="true" aria-labelledby="bio-title" aria-hidden="true">
   <div class="site-modal__dialog bio-modal__dialog">
-    <button type="button" class="site-modal__close bio-modal__close" id="bio-close" aria-label="Cerrar biografía">×</button>
+    <button type="button" class="site-modal__close bio-modal__close" id="bio-close" aria-label="Cerrar biografía"><span aria-hidden="true">×</span></button>
     <div class="bio-modal__grid">
       <picture>
         <source type="image/webp" srcset="assets/images/benny-yasoto.webp">
@@ -189,7 +194,7 @@ if ('ontouchstart' in window) {
 
 <div class="site-modal links-modal" id="links-modal" role="dialog" aria-modal="true" aria-labelledby="links-title" aria-hidden="true">
   <div class="site-modal__dialog links-modal__dialog">
-    <button type="button" class="site-modal__close links-modal__close" id="links-close" aria-label="Cerrar enlaces">×</button>
+    <button type="button" class="site-modal__close links-modal__close" id="links-close" aria-label="Cerrar enlaces"><span aria-hidden="true">×</span></button>
     <h2 class="links-modal__title" id="links-title">Enlaces</h2>
     <p class="links-modal__subtitle">Prensa · Música · Eventos · Formación</p>
     <ul class="links-modal__list">
