@@ -6,7 +6,7 @@
   'use strict';
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isMobile = window.innerWidth < 768;
+  const isMobile = window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches;
 
   const BPM = 145;
   const TEMPO = BPM / 60;
@@ -100,6 +100,8 @@
   let lastGlitchTime = performance.now();
   let gridT = 0;
   let reusableImageData = null;
+  let pixelLayer = null;
+  let pixelLayerCtx = null;
 
   function getQuality() {
     return PERFORMANCE_PRESETS[performanceState.presetIndex];
@@ -111,6 +113,10 @@
     canvas.width = width;
     canvas.height = height;
     reusableImageData = null;
+    if (pixelLayer) {
+      pixelLayer.width = width;
+      pixelLayer.height = height;
+    }
     ptrX = width / 2;
     ptrY = height / 2;
     ptrNX = 0;
@@ -139,13 +145,32 @@
     return Math.max(-1, Math.min(1, (s * d) / d));
   }
 
+  function ensurePixelLayer() {
+    if (!pixelLayer || pixelLayer.width !== width || pixelLayer.height !== height) {
+      pixelLayer = document.createElement('canvas');
+      pixelLayer.width = width;
+      pixelLayer.height = height;
+      pixelLayerCtx = pixelLayer.getContext('2d', { alpha: true });
+      reusableImageData = null;
+    }
+  }
+
   function acquireImageData() {
+    ensurePixelLayer();
     if (!reusableImageData || reusableImageData.width !== width || reusableImageData.height !== height) {
-      reusableImageData = ctx.createImageData(width, height);
+      reusableImageData = pixelLayerCtx.createImageData(width, height);
     } else {
       reusableImageData.data.fill(0);
     }
     return reusableImageData;
+  }
+
+  /** Composite pixel fractals without wiping the reactive grid underneath. */
+  function putPixelFractal(imageData) {
+    ensurePixelLayer();
+    pixelLayerCtx.clearRect(0, 0, width, height);
+    pixelLayerCtx.putImageData(imageData, 0, 0);
+    ctx.drawImage(pixelLayer, 0, 0);
   }
 
   function fillPixel(d, idx, v) {
@@ -287,7 +312,7 @@
         }
       }
     }
-    ctx.putImageData(id, 0, 0);
+    putPixelFractal(id);
   }
 
   function drawDataPath(cx2, cy2, segments, depth, rotation) {
@@ -412,7 +437,7 @@
         }
       }
     }
-    ctx.putImageData(id, 0, 0);
+    putPixelFractal(id);
   }
 
   function drawDragonCurve(quality) {
@@ -581,9 +606,10 @@
   }
 
   function animate(timestamp) {
-    requestAnimationFrame(animate);
-    if (!width || !height) return;
-    if (document.hidden) return;
+    if (!width || !height || document.hidden) {
+      requestAnimationFrame(animate);
+      return;
+    }
 
     const now = timestamp || performance.now();
     let delta = now - performanceState.lastTimestamp;
@@ -611,10 +637,6 @@
     ctx.fillStyle = `rgba(3, 3, 8, ${FADE_OPACITY})`;
     ctx.fillRect(0, 0, width, height);
 
-    drawPulseGrid();
-    drawWaveform(beatPhase);
-    drawKickBurst(beatPhase);
-
     if (Math.sin(time * PULSE_FREQ * Math.PI * 2) > FLASH_THRESHOLD) {
       ctx.fillStyle = rgba(C.main, 0.12);
       ctx.fillRect(0, 0, width, height);
@@ -624,15 +646,21 @@
     drawFractalPattern(quality);
     ctx.globalAlpha = 1;
 
+    drawPulseGrid();
+    drawWaveform(beatPhase);
+    drawKickBurst(beatPhase);
+
     if (!isMobile && quality.name !== 'low' && Math.sin(time * GLITCH_FREQ * Math.PI * 2) > 0.94) {
       applyGlitch(quality);
     }
+
+    requestAnimationFrame(animate);
   }
 
   function boot() {
     canvas = document.getElementById('bg-canvas');
     if (!canvas) return;
-    ctx = canvas.getContext('2d', { alpha: false });
+    ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     document.body.classList.add('visuals-ready');
@@ -640,16 +668,22 @@
 
     window.addEventListener('pointermove', (e) => setPointer(e.clientX, e.clientY), { passive: true });
     window.addEventListener('pointerdown', (e) => setPointer(e.clientX, e.clientY), { passive: true });
+    document.addEventListener('touchmove', (e) => {
+      if (e.touches[0]) setPointer(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
     window.addEventListener('resize', resizeCanvas, { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', resizeCanvas, { passive: true });
+    }
     document.addEventListener('click', manualCycle);
 
     if (reduceMotion) {
       ctx.fillStyle = '#030308';
       ctx.fillRect(0, 0, width, height);
-      drawPulseGrid();
-      drawWaveform(0);
       currentPattern = 1;
       drawFractalPattern(getQuality());
+      drawPulseGrid();
+      drawWaveform(0);
       return;
     }
 
