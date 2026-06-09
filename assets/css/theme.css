@@ -242,11 +242,29 @@ html, body {
 }
 
 .btn-bio:hover,
-.btn-bio:focus-visible {
+.btn-bio:focus-visible,
+.btn-links:hover,
+.btn-links:focus-visible {
   border-color: var(--red);
   color: var(--red);
   box-shadow: 0 0 24px rgba(255, 51, 85, 0.2);
   outline: none;
+}
+
+.btn-links {
+  display: inline-block;
+  margin: 6px 0;
+  padding: 8px 18px;
+  font-family: var(--font-mono);
+  font-size: clamp(8px, 0.95vw, 10px);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--dim);
+  background: transparent;
+  border: 1px solid rgba(255, 51, 85, 0.3);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  pointer-events: all;
 }
 
 /* ── Links ──────────────────────────────────────────────────────── */
@@ -296,8 +314,8 @@ html, body {
   transition: color 0.2s;
 }
 
-/* ── Bio modal ──────────────────────────────────────────────────── */
-.bio-modal {
+/* ── Modals ─────────────────────────────────────────────────────── */
+.site-modal {
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -314,13 +332,13 @@ html, body {
   touch-action: auto;
 }
 
-.bio-modal.is-open {
+.site-modal.is-open {
   opacity: 1;
   visibility: visible;
   pointer-events: all;
 }
 
-.bio-modal__dialog {
+.site-modal__dialog {
   position: relative;
   width: min(720px, 100%);
   max-height: min(90vh, 820px);
@@ -334,7 +352,7 @@ html, body {
   padding: clamp(20px, 4vw, 36px);
 }
 
-.bio-modal__close {
+.site-modal__close {
   position: absolute;
   top: 12px;
   right: 14px;
@@ -349,8 +367,8 @@ html, body {
   transition: color 0.2s, border-color 0.2s;
 }
 
-.bio-modal__close:hover,
-.bio-modal__close:focus-visible {
+.site-modal__close:hover,
+.site-modal__close:focus-visible {
   color: var(--red);
   border-color: var(--red);
   outline: none;
@@ -405,14 +423,76 @@ html, body {
   font-weight: 400;
 }
 
+.bio-modal__heading {
+  font-family: var(--font-display);
+  font-size: clamp(14px, 2vw, 18px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 51, 85, 0.75);
+  margin-top: 1.4em;
+  margin-bottom: 0.5em;
+}
+
+.bio-modal__text .bio-modal__heading:first-child {
+  margin-top: 0;
+}
+
+.links-modal__title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 4vw, 32px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 10px;
+  padding-right: 40px;
+}
+
+.links-modal__subtitle {
+  font-size: clamp(8px, 0.95vw, 10px);
+  letter-spacing: 0.25em;
+  color: rgba(255, 51, 85, 0.55);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.links-modal__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.links-modal__list li {
+  border-bottom: 1px solid rgba(255, 51, 85, 0.12);
+}
+
+.links-modal__list a {
+  display: block;
+  padding: 12px 0;
+  font-size: clamp(11px, 1.2vw, 13px);
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  text-decoration: none;
+  text-transform: none;
+  transition: color 0.2s, padding-left 0.25s;
+}
+
+.links-modal__list a:hover,
+.links-modal__list a:focus-visible {
+  color: var(--red);
+  padding-left: 6px;
+  outline: none;
+}
+
 /* ── Touch targets ──────────────────────────────────────────────── */
 nav,
 .links,
 .link,
 .btn-bio,
+.btn-links,
 .meta a,
-.bio-modal a,
-.bio-modal button {
+.site-modal a,
+.site-modal button {
   touch-action: manipulation;
 }
 

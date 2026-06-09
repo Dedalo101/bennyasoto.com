@@ -63,7 +63,7 @@
 <script>
 if ('ontouchstart' in window) {
   document.addEventListener('touchmove', function (e) {
-    if (e.target.closest && e.target.closest('.bio-modal, .bio-modal__dialog')) return;
+    if (e.target.closest && e.target.closest('.site-modal, .site-modal__dialog')) return;
     e.preventDefault();
   }, { passive: false });
 }
@@ -120,13 +120,16 @@ if ('ontouchstart' in window) {
 
   <div class="corner-br meta">
     <span>Producer · Selector · Live</span><br>
+    <button type="button" class="btn-links" id="links-open" aria-haspopup="dialog" aria-controls="links-modal">
+      Enlaces
+    </button><br>
     <span style="color:var(--faint)">© 2026 Benny Yasoto</span>
   </div>
 </div>
 
-<div class="bio-modal" id="bio-modal" role="dialog" aria-modal="true" aria-labelledby="bio-title" aria-hidden="true">
-  <div class="bio-modal__dialog">
-    <button type="button" class="bio-modal__close" id="bio-close" aria-label="Cerrar biografía">×</button>
+<div class="site-modal bio-modal" id="bio-modal" role="dialog" aria-modal="true" aria-labelledby="bio-title" aria-hidden="true">
+  <div class="site-modal__dialog bio-modal__dialog">
+    <button type="button" class="site-modal__close bio-modal__close" id="bio-close" aria-label="Cerrar biografía">×</button>
     <div class="bio-modal__grid">
       <picture>
         <source type="image/webp" srcset="assets/images/benny-yasoto.webp">
@@ -142,32 +145,70 @@ if ('ontouchstart' in window) {
       </picture>
       <div>
         <h2 class="bio-modal__title" id="bio-title">Benny Yasoto</h2>
-        <p class="bio-modal__subtitle">DJ · Málaga · Orion Pro</p>
+        <p class="bio-modal__subtitle">DJ · Productor · Docente · Málaga</p>
         <div class="bio-modal__text">
           <p>
-            <strong>Benny Yasoto</strong> es un DJ malagueño con raíces orientales y más de veinte años en la escena electrónica.
-            Con apenas trece años consiguió su primera residencia en el Squirrel Club de Estepona, donde empezó a definir
-            su sonido entre electro y techno experimental, y formó parte del colectivo <strong>Elevation</strong>.
+            <strong>Benny Yasoto</strong> es un DJ, productor y docente con base en Málaga, reconocido por una trayectoria
+            de más de 20 años que abarca desde el electro experimental hasta el techno minimalista. Además de su faceta
+            artística como residente en clubes emblemáticos como <strong>Orion Pro</strong>, <strong>MANIKI</strong> y
+            <strong>Mor Club</strong>, Yasoto ejerce actualmente como profesor de DJ, impartiendo Master Class en la
+            academia <strong>Musiluz</strong> para formar a nuevas generaciones de artistas.
           </p>
+          <h3 class="bio-modal__heading">Inicios y Conexión con Berlín</h3>
           <p>
-            En el año 2000 dio un salto decisivo con la residencia en <strong>Rubí Club</strong>, explorando líneas más
-            minimalistas sin abandonar sus referentes. En esa etapa se integró en el colectivo <strong>Toys</strong>, ampliando
-            su presencia en la costa malagueña.
+            Su carrera comenzó precozmente a los 13 años con una residencia en el Squirrel Club de Estepona, donde definió
+            su sonido inicial junto al colectivo <strong>Levation</strong>. Aunque su base siempre ha sido la costa malagueña,
+            Yasoto consolidó una fuerte conexión con Berlín en sus años de formación y expansión profesional. Esta relación
+            no solo se refleja en sus actuaciones en clubes legendarios de la capital alemana como <strong>Lux Club</strong>,
+            <strong>Bar 23</strong> y <strong>Zmf</strong>, sino también en su producción musical: tiene programados
+            lanzamientos con el sello berlinés <strong>Eintakt Records</strong>, lo que subraya su integración en la escena
+            techno germánica desde sus inicios.
           </p>
+          <h3 class="bio-modal__heading">Evolución Profesional y Colectivos</h3>
           <p>
-            En 2003, con el apoyo de Toys y de <strong>Miga-label</strong> —uno de los primeros net-labels europeos en su
-            trayectoria— consolidó su lugar en el circuito. Desde entonces forma parte de <strong>Orion Pro</strong> como
-            residente (desde 2017), uno de los pilares del techno en Málaga, con actuaciones por gran parte de España y
-            presencia internacional.
+            En el año 2000, dio un giro hacia sonidos más minimalistas durante su residencia en <strong>Rubí Club</strong>,
+            uniéndose posteriormente al colectivo <strong>Toys</strong>. Un hito decisivo ocurrió en 2003 cuando, tras
+            compartir cabina con <strong>Intelec</strong>, fue apadrinado por <strong>Miga-label</strong> (Granada), uno de
+            los primeros net-labels europeos. Esta etapa le permitió expandir su presencia nacional, actuando en festivales
+            como <strong>Etnosur</strong> (Jaén) y <strong>Klubber's Day</strong> (Madrid), y en clubes de toda la península.
           </p>
+          <h3 class="bio-modal__heading">Labor Docente y Legado</h3>
           <p>
-            Ha compartido cabina con referentes como <strong>The Advent</strong>, <strong>Óscar Mulero</strong>,
-            <strong>Ben Sims</strong> y <strong>Ken Ishii</strong>, afianzándose como una figura clave del techno malagueño
-            a nivel local y nacional.
+            Actualmente, Benny Yasoto combina su agenda de actuaciones —que incluye compartir cartel con figuras como
+            <strong>Carl Cox</strong>, <strong>Ken Ishii</strong> y <strong>The Advent</strong>— con su labor educativa.
+            En su rol de profesor, transmite su experiencia en técnica de mezcla, selección musical y cultura de club,
+            enfocándose en la pureza del sonido y el uso del vinilo. Su producción discográfica incluye temas como
+            «Beni el Bell» y «Elek Fresk», y mantiene una presencia activa como director artístico y residente en la sala
+            <strong>True Club</strong> y <strong>Sala París 15</strong>.
           </p>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="site-modal links-modal" id="links-modal" role="dialog" aria-modal="true" aria-labelledby="links-title" aria-hidden="true">
+  <div class="site-modal__dialog links-modal__dialog">
+    <button type="button" class="site-modal__close links-modal__close" id="links-close" aria-label="Cerrar enlaces">×</button>
+    <h2 class="links-modal__title" id="links-title">Enlaces</h2>
+    <p class="links-modal__subtitle">Prensa · Música · Eventos · Formación</p>
+    <ul class="links-modal__list">
+      <li><a href="https://musiluz.com/staff/benny_yasoto" target="_blank" rel="noopener noreferrer">Musiluz · Profesor DJ</a></li>
+      <li><a href="https://www.junodownload.com/artists/Benny+Yasoto/tracks/" target="_blank" rel="noopener noreferrer">Juno Download · Discografía</a></li>
+      <li><a href="https://www.beatport.com/artist/benny-yasoto/81478" target="_blank" rel="noopener noreferrer">Beatport · Benny Yasoto</a></li>
+      <li><a href="https://www.beatport.com/label/eintakt-records/1434" target="_blank" rel="noopener noreferrer">Beatport · Eintakt Records</a></li>
+      <li><a href="https://ra.co/events/2220995" target="_blank" rel="noopener noreferrer">Resident Advisor · Evento</a></li>
+      <li><a href="https://paris15.es/event/orion-pro-oscar-mulero/" target="_blank" rel="noopener noreferrer">Sala París 15 · Orion Pro × Óscar Mulero</a></li>
+      <li><a href="https://entradium.com/en/events/orion-pro-fatima-hajji" target="_blank" rel="noopener noreferrer">Entradium · Orion Pro × Fatima Hajji</a></li>
+      <li><a href="https://entradium.com/en/events/orion-pro-tensal" target="_blank" rel="noopener noreferrer">Entradium · Orion Pro × Tensal</a></li>
+      <li><a href="https://entradium.com/events/polegroup-showcase-x-orion-pro-norbak-ribe" target="_blank" rel="noopener noreferrer">Entradium · Pole Group × Orion Pro</a></li>
+      <li><a href="https://www.suenasur.com/evento/orion-adriana-lpez-173495490867694f9c57578.html" target="_blank" rel="noopener noreferrer">Suena Sur · Orion Pro × Adriana López</a></li>
+      <li><a href="https://www.nostromomagazine.es/techno-internacional-made-in-malaga/" target="_blank" rel="noopener noreferrer">Nostromo Magazine · Made in Málaga</a></li>
+      <li><a href="https://viciousmagazine.com/news/musiluz-aprende-disfruta-y-suena-con-un-futuro-que-es-mas-presente-que-nunca-en-el-sector-audiovisual/" target="_blank" rel="noopener noreferrer">Vicious Magazine · Musiluz</a></li>
+      <li><a href="https://www.murcia.com/noticias/2008/06-19-sala-puertas-castilla-murcia-acoge.asp" target="_blank" rel="noopener noreferrer">Murcia.com · Sala Puertas de Castilla</a></li>
+      <li><a href="https://es-es.facebook.com/orionprospain/videos/orion-pro-umekumek-l-poty-l-benny-yasoto-l-alex-ribera-l-paula-kasbaeh-unete-a-n/2983068191708045/" target="_blank" rel="noopener noreferrer">Facebook · Orion Pro × Umek</a></li>
+      <li><a href="https://www.amazon.es/Benny-Yasoto/dp/B00EQBQ70G" target="_blank" rel="noopener noreferrer">Amazon · Benny Yasoto</a></li>
+    </ul>
   </div>
 </div>
 

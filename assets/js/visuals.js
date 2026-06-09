@@ -575,7 +575,7 @@
   }
 
   function manualCycle(e) {
-    if (e.target.closest('a, button, .bio-modal, .bio-modal *')) return;
+    if (e.target.closest('a, button, .site-modal, .site-modal *')) return;
     currentPattern = (currentPattern + 1) % 9;
     lastPatternBeat = Math.floor(Math.floor(elapsed / BEAT_SEC) / PATTERN_CYCLE_BEATS);
   }
