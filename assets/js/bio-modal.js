@@ -26,7 +26,8 @@
       lastFocus = document.activeElement;
       modal.classList.add('is-open');
       modal.setAttribute('aria-hidden', 'false');
-      (closeBtn || openBtn).focus();
+      // fix: rAF ensures focus lands on close after open transition paints
+      requestAnimationFrame(() => (closeBtn || openBtn).focus());
       document.body.style.overflow = 'hidden';
     }
 
