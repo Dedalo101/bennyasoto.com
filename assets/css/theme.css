@@ -123,6 +123,10 @@ html, body {
 
 .meta a:hover { color: var(--red); }
 
+.meta-foot {
+  color: var(--faint);
+}
+
 .meta-sep { color: var(--faint); pointer-events: none; }
 
 .pulse {
