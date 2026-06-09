@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Benny Yasoto — DJ y productor de techno de Málaga. Residente de Orion Pro. Hard techno, techno raw e industrial. Más de 20 años en la escena.">
 <meta name="keywords" content="Benny Yasoto, techno Málaga, hard techno, Orion Pro, Glue Records, DJ España, techno industrial">
 <meta name="author" content="Benny Yasoto">
@@ -60,12 +60,21 @@
 <link rel="stylesheet" href="assets/css/theme.css">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap"></noscript>
+<script>
+if ('ontouchstart' in window) {
+  document.addEventListener('touchmove', function (e) {
+    if (e.target.closest && e.target.closest('.bio-modal, .bio-modal__dialog')) return;
+    e.preventDefault();
+  }, { passive: false });
+}
+</script>
 </head>
 <body>
 
 <canvas id="bg-canvas" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
 <div class="scanlines" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
 
 <div class="shell">
   <div class="corner-tl meta">
@@ -83,8 +92,10 @@
   <div class="center">
     <span class="eyebrow">Infinite pattern</span>
     <div class="title-wrap">
-      <canvas id="title-canvas" aria-hidden="true"></canvas>
-      <h1 class="title" id="lcp-title">Benny<br>Yasoto</h1>
+      <h1 class="title" id="lcp-title">
+        <span class="title-line" data-text="Benny">Benny</span><br>
+        <span class="title-line" data-text="Yasoto">Yasoto</span>
+      </h1>
     </div>
     <span class="rule" aria-hidden="true"></span>
     <p class="tagline">Inside the groove</p>
@@ -161,7 +172,7 @@
   </div>
 </div>
 
-<script src="assets/js/visuals.js"></script>
+<script src="assets/js/visuals.js" defer></script>
 <script src="assets/js/bio-modal.js" defer></script>
 </body>
 </html>
