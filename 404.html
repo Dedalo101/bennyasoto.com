@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#030308">
+<title>404 · Benny Yasoto</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<style>
+  :root { --bg: #030308; --red: #ff2850; --text: #e8e8f0; --dim: rgba(232,232,240,0.45); }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: 'Share Tech Mono', ui-monospace, monospace; overflow: hidden; }
+  #bg-canvas { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; }
+  /* creative: 404 as portal back to the main set — same brutalist pulse */
+  .portal {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+  }
+  .code { font-size: clamp(64px, 18vw, 160px); line-height: 1; color: var(--red); text-shadow: 0 0 40px rgba(255,40,80,0.35); }
+  .msg { margin-top: 1rem; font-size: clamp(10px, 1.2vw, 12px); letter-spacing: 0.35em; text-transform: uppercase; color: var(--dim); }
+  .back {
+    margin-top: 2.5rem; padding: 12px 28px;
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--text); background: transparent;
+    border: 1px solid rgba(255,40,80,0.4); text-decoration: none;
+    transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  }
+  .back:hover, .back:focus-visible { border-color: var(--red); color: var(--red); box-shadow: 0 0 24px rgba(255,40,80,0.2); outline: none; }
+  .pulse { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--red); margin-right: 6px; animation: throb 2.4s ease-in-out infinite; }
+  @keyframes throb { 0%,100%{opacity:1} 50%{opacity:.3} }
+  @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+</style>
+</head>
+<body>
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<main class="portal">
+  <p class="code" aria-hidden="true">404</p>
+  <h1 class="msg">Página no encontrada</h1>
+  <p class="msg"><span class="pulse" aria-hidden="true"></span>Señal perdida en el set</p>
+  <a class="back" href="/">Volver al portal</a>
+</main>
+<script>
+(function () {
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const c = document.getElementById('bg-canvas');
+  const ctx = c.getContext('2d');
+  let w, h, t = 0, id;
+  function resize() { w = c.width = innerWidth; h = c.height = innerHeight; }
+  function draw() {
+    if (document.hidden) { id = null; return; }
+    t += 0.016;
+    ctx.fillStyle = 'rgba(3,3,8,0.08)'; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = 'rgba(255,40,80,0.35)'; ctx.lineWidth = 1;
+    for (let i = 0; i < 6; i++) {
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 4) {
+        const y = h/2 + Math.sin(x*0.012 + t*2 + i) * (40 + i*12);
+        x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.stroke();
+    }
+    id = requestAnimationFrame(draw);
+  }
+  resize(); addEventListener('resize', resize);
+  ctx.fillStyle = '#030308'; ctx.fillRect(0,0,w,h);
+  if (!reduceMotion) { draw(); addEventListener('visibilitychange', () => { if (document.hidden && id) cancelAnimationFrame(id); else if (!id) draw(); }); }
+})();
+</script>
+</body>
+</html>

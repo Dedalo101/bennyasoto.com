@@ -1,0 +1,5 @@
+HTML validation — bennyasoto.com audit (2026-06-09)
+
+$ npx html-validate index.html 404.html
+
+Result: PASS (0 errors, 0 warnings)
