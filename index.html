@@ -125,8 +125,10 @@ html {
 
 html, body {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: none;
   touch-action: manipulation;
   background: var(--bg);
@@ -190,9 +192,9 @@ html, body {
 
 /* ── Shell grid (Glue-inspired corners) ─────────────────────────── */
 .shell {
-  position: fixed;
-  inset: 0;
+  position: relative;
   z-index: 10;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   grid-template-rows: 1fr auto 1fr;
@@ -427,9 +429,13 @@ html, body {
   position: fixed;
   inset: 0;
   z-index: 100;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
+}
+
+.site-modal:not([hidden]) {
+  display: flex;
   padding: clamp(16px, 4vw, 40px);
   background: rgba(3, 3, 8, 0.88);
   backdrop-filter: blur(8px);
@@ -849,7 +855,7 @@ nav,
   </div>
 </main>
 
-<div class="site-modal bio-modal" id="bio-modal" role="dialog" aria-modal="true" aria-labelledby="bio-title" aria-hidden="true">
+<div class="site-modal bio-modal" id="bio-modal" role="dialog" aria-modal="true" aria-labelledby="bio-title" aria-hidden="true" hidden>
   <div class="site-modal__dialog bio-modal__dialog">
     <button type="button" class="site-modal__close bio-modal__close" id="bio-close" aria-label="Cerrar biografía"><span aria-hidden="true">×</span></button>
     <div class="bio-modal__grid">
@@ -909,7 +915,7 @@ nav,
   </div>
 </div>
 
-<div class="site-modal links-modal" id="links-modal" role="dialog" aria-modal="true" aria-labelledby="links-title" aria-hidden="true">
+<div class="site-modal links-modal" id="links-modal" role="dialog" aria-modal="true" aria-labelledby="links-title" aria-hidden="true" hidden>
   <div class="site-modal__dialog links-modal__dialog">
     <button type="button" class="site-modal__close links-modal__close" id="links-close" aria-label="Cerrar enlaces"><span aria-hidden="true">×</span></button>
     <h2 class="links-modal__title" id="links-title">Enlaces</h2>
@@ -962,6 +968,7 @@ nav,
 
   const BPM = 145;
   const BEAT_SEC = 60 / BPM;
+  const WAVE_SCROLL = BPM * 0.078;
   const STROBE_MS = 60;
   const AUDIO_SRC = 'assets/audio/benny-yasoto.mp3';
   const MIXCLOUD_FEED = '/forzinvalves/benny-yasoto-mor-club-30-12-2012/';
@@ -998,8 +1005,14 @@ nav,
   let audioBass = 0;
   let audioMode = 'clock';
   let audioPlaying = false;
-  let unlocked = false;
   let unlockEl = null;
+
+  function withTimeout(promise, ms, fallback) {
+    return Promise.race([
+      promise,
+      new Promise((resolve) => setTimeout(() => resolve(fallback), ms)),
+    ]);
+  }
 
   let audioEl = null;
   let audioCtx = null;
@@ -1027,17 +1040,19 @@ nav,
     style.id = 'visuals-unlock-style';
     style.textContent = [
       '.audio-unlock {',
-      '  position: fixed; inset: 0; z-index: 200;',
-      '  display: flex; align-items: center; justify-content: center;',
-      '  background: rgba(3, 3, 8, 0.72);',
+      '  position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom));',
+      '  transform: translateX(-50%); z-index: 50;',
       '  border: 0; cursor: pointer; padding: 0;',
       '  font-family: "Share Tech Mono", ui-monospace, monospace;',
-      '  letter-spacing: 0.35em; text-transform: uppercase;',
-      '  color: #ff3355; font-size: clamp(11px, 2.5vw, 14px);',
+      '  letter-spacing: 0.22em; text-transform: uppercase;',
+      '  color: #ff3355; font-size: clamp(9px, 2.2vw, 12px);',
+      '  pointer-events: auto;',
       '}',
       '.audio-unlock span {',
+      '  display: block;',
       '  border: 1px solid rgba(255, 51, 85, 0.45);',
-      '  padding: 14px 22px; background: rgba(3, 3, 8, 0.9);',
+      '  padding: 10px 16px; background: rgba(3, 3, 8, 0.92);',
+      '  box-shadow: 0 8px 32px rgba(0,0,0,0.5);',
       '}',
       '.audio-unlock.is-hidden { display: none; }',
       '#mixcloud-player {',
@@ -1049,19 +1064,20 @@ nav,
   }
 
   function showUnlock() {
-    if (unlockEl || unlocked) return;
     injectUnlockStyles();
-    unlockEl = document.createElement('button');
-    unlockEl.type = 'button';
-    unlockEl.className = 'audio-unlock';
-    unlockEl.setAttribute('aria-label', 'Iniciar audio y visuales');
-    unlockEl.innerHTML = '<span>Pulsa para entrar · 145 BPM</span>';
-    unlockEl.addEventListener('click', unlockExperience, { once: true });
-    document.body.appendChild(unlockEl);
+    if (!unlockEl) {
+      unlockEl = document.createElement('button');
+      unlockEl.type = 'button';
+      unlockEl.className = 'audio-unlock';
+      unlockEl.setAttribute('aria-label', 'Iniciar audio');
+      unlockEl.innerHTML = '<span>▶ Audio · 145 BPM</span>';
+      unlockEl.addEventListener('click', unlockExperience);
+      document.body.appendChild(unlockEl);
+    }
+    unlockEl.classList.remove('is-hidden');
   }
 
   function hideUnlock() {
-    unlocked = true;
     if (unlockEl) unlockEl.classList.add('is-hidden');
   }
 
@@ -1095,15 +1111,19 @@ nav,
         document.body.appendChild(iframe);
       }
       mixWidget = window.Mixcloud.PlayerWidget(iframe);
-      return mixWidget.ready.then(() => {
-        audioMode = 'mixcloud';
-        return true;
-      });
+      return withTimeout(
+        mixWidget.ready.then(() => {
+          audioMode = 'mixcloud';
+          return true;
+        }),
+        6000,
+        false
+      );
     });
   }
 
   function initFileAudio() {
-    return new Promise((resolve) => {
+    return withTimeout(new Promise((resolve) => {
       audioEl = document.createElement('audio');
       audioEl.id = 'site-audio';
       audioEl.src = AUDIO_SRC;
@@ -1148,7 +1168,7 @@ nav,
         { once: true }
       );
       audioEl.load();
-    });
+    }), 4000, false);
   }
 
   function readAnalyser() {
@@ -1193,9 +1213,9 @@ nav,
   }
 
   async function unlockExperience() {
-    hideUnlock();
     const ok = await tryAutoplay();
-    if (!ok) showUnlock();
+    if (ok) hideUnlock();
+    else showUnlock();
   }
 
   function resizeCanvas() {
@@ -1249,7 +1269,11 @@ nav,
     layers.forEach(({ freq, col, lw, phase: ph }) => {
       ctx.beginPath();
       for (let px = 0; px <= width; px += 2) {
-        const t2 = (px / width) * Math.PI * 2 * freq + elapsedSec * 4.2 * freq * 0.3 + ph;
+        const t2 =
+          (px / width) * Math.PI * 2 * freq +
+          elapsedSec * WAVE_SCROLL * freq * 0.35 +
+          beatPhase * Math.PI * 2 +
+          ph;
         const raw = distortedSine(t2, distDrive);
         const y = cy + raw * ampScale * (0.5 + Math.sin(px * 0.012 + elapsedSec) * 0.5);
         px === 0 ? ctx.moveTo(px, y) : ctx.lineTo(px, y);
@@ -1264,7 +1288,8 @@ nav,
   function drawKickBurst(beatPhase) {
     const env = effectiveKick(beatPhase);
     if (env < 0.04) return;
-    const n = Math.floor(6 + env * 14);
+    const m = isMobile ? 0.35 : 1;
+    const n = Math.floor((2 + env * 8) * m);
     for (let i = 0; i < n; i++) {
       const x = Math.random() * width;
       const len = (20 + env * height * 0.7) * (0.3 + Math.random() * 0.7);
@@ -1277,7 +1302,7 @@ nav,
       ctx.stroke();
     }
     const grd = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width * 0.6);
-    grd.addColorStop(0, `rgba(255,0,0,${(env * 0.22).toFixed(2)})`);
+    grd.addColorStop(0, `rgba(255,0,0,${(env * 0.12 * m).toFixed(2)})`);
     grd.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, width, height);
@@ -1301,7 +1326,7 @@ nav,
   }
 
   function drawStrobe(intensity) {
-    ctx.fillStyle = `rgba(255,255,255,${(intensity * 0.85).toFixed(2)})`;
+    ctx.fillStyle = `rgba(255,255,255,${(intensity * 0.12).toFixed(2)})`;
     ctx.fillRect(0, 0, width, height);
   }
 
@@ -1423,7 +1448,8 @@ nav,
     if (isGlitching) drawGlitchSlices(glitchInt);
     if (isSlicing) drawGlitchSlices(0.8 + Math.random() * 0.2);
 
-    drawNoise(0.1 + glitchInt * 0.9 + effectiveKick(beatPhase) * 0.4, quality);
+    const noiseBase = isMobile ? 0.04 : 0.1;
+    drawNoise(noiseBase + glitchInt * 0.5 + effectiveKick(beatPhase) * (isMobile ? 0.15 : 0.4), quality);
     if (!isMobile) drawScanlines();
 
     if (isStrobing) drawStrobe(Math.min(1, (strobeUntil - now) / STROBE_MS));
@@ -1451,15 +1477,16 @@ nav,
       window.visualViewport.addEventListener('resize', resizeCanvas, { passive: true });
     }
 
-    const hasFile = await initFileAudio();
-    if (!hasFile) await initMixcloud();
-
     ctx.fillStyle = 'rgb(3,0,8)';
     ctx.fillRect(0, 0, width, height);
     requestAnimationFrame(animate);
 
-    const autoplayed = await tryAutoplay();
-    if (!autoplayed) showUnlock();
+    void (async () => {
+      const hasFile = await initFileAudio();
+      if (!hasFile) await initMixcloud();
+      const autoplayed = await tryAutoplay();
+      if (!autoplayed) showUnlock();
+    })();
   }
 
   if (document.readyState === 'loading') {

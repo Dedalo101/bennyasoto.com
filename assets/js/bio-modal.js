@@ -22,18 +22,23 @@
       document.querySelectorAll('.site-modal.is-open').forEach((m) => {
         m.classList.remove('is-open');
         m.setAttribute('aria-hidden', 'true');
+        m.setAttribute('hidden', '');
       });
       lastFocus = document.activeElement;
+      modal.removeAttribute('hidden');
       modal.classList.add('is-open');
       modal.setAttribute('aria-hidden', 'false');
       // fix: rAF ensures focus lands on close after open transition paints
       requestAnimationFrame(() => (closeBtn || openBtn).focus());
+      document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
     }
 
     function close() {
       modal.classList.remove('is-open');
       modal.setAttribute('aria-hidden', 'true');
+      modal.setAttribute('hidden', '');
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
       (lastFocus || openBtn).focus();
     }
