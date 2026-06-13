@@ -19,9 +19,11 @@ jobs:
       - name: Validate HTML
         run: npx --yes html-validate index.html
 
+      - name: Verify visuals embedded
+        run: node scripts/embed-visuals.mjs --check
+
   check-links:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 

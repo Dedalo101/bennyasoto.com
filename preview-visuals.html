@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#030308">
+<title>Preview · Benny Yasoto visuals</title>
+<link rel="preload" href="assets/fonts/share-tech-mono.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/special-elite.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="assets/css/theme.css">
+<style>
+.preview-badge {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 100;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 40, 80, 0.7);
+  background: rgba(3, 3, 8, 0.85);
+  border: 1px solid rgba(255, 40, 80, 0.25);
+  padding: 0.45rem 0.65rem;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+<p class="sr-only" id="bg-visuals-desc">Fondo animado sincronizado a 145 BPM. Sin audio.</p>
+<canvas id="bg-canvas" role="img" aria-labelledby="bg-visuals-desc"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<main class="shell">
+  <div class="center" id="main-content">
+    <h1 class="title"><span class="title-line">Benny</span><br><span class="title-line">Yasoto</span></h1>
+    <p class="tagline">Preview — new engine</p>
+  </div>
+</main>
+<p class="preview-badge" id="preview-status">New engine preview</p>
+<script>window.__VISUALS_FORCE_ANIM__ = true;</script>
+<script src="assets/js/visuals.js" defer></script>
+</body>
+</html>

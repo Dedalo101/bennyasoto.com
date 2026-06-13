@@ -9,8 +9,8 @@
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <meta name="theme-color" content="#030308">
 <meta name="color-scheme" content="dark">
-<!-- CSP: unsafe-inline required for inline fractal script on GitHub Pages (no HTTP headers). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'">
+<!-- CSP: unsafe-inline required for inline canvas script on GitHub Pages (no HTTP headers). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'">
 <title>Benny Yasoto · Hard Techno · Málaga</title>
 
 <link rel="canonical" href="https://bennyasoto.com/">
@@ -27,6 +27,7 @@
 <meta property="og:description" content="DJ malagueño, residente de Orion Pro. Techno raw e industrial con más de 20 años de trayectoria.">
 <meta property="og:url" content="https://bennyasoto.com/">
 <meta property="og:image" content="https://bennyasoto.com/assets/images/benny-yasoto.webp">
+<meta property="og:image:alt" content="Benny Yasoto — DJ y productor de techno">
 <meta property="og:locale" content="es_ES">
 
 <meta name="twitter:card" content="summary_large_image">
@@ -58,6 +59,8 @@
     "https://www.instagram.com/bennyyasoto/",
     "https://ra.co/dj/bennyyasoto",
     "https://www.beatport.com/artist/benny-yasoto/81478",
+    "https://soundcloud.com/gluerecords",
+    "https://www.mixcloud.com/gluerecords",
     "https://musiluz.com/staff/benny_yasoto"
   ]
 }
@@ -75,15 +78,30 @@
     "https://www.instagram.com/bennyyasoto/",
     "https://ra.co/dj/bennyyasoto",
     "https://www.beatport.com/artist/benny-yasoto/81478",
+    "https://soundcloud.com/gluerecords",
+    "https://www.mixcloud.com/gluerecords",
     "https://musiluz.com/staff/benny_yasoto"
   ]
 }
 </script>
 
-<link rel="dns-prefetch" href="//fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="assets/fonts/share-tech-mono.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/special-elite.ttf" as="font" type="font/ttf" crossorigin>
 <style>
+@font-face {
+  font-family: 'Share Tech Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('assets/fonts/share-tech-mono.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Special Elite';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('assets/fonts/special-elite.ttf') format('truetype');
+}
 /* Benny Yasoto — theme (Dedalo101 artist site) */
 :root {
   --bg: #030308;
@@ -110,7 +128,7 @@ html, body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
-  touch-action: none;
+  touch-action: manipulation;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-mono);
@@ -545,6 +563,31 @@ html, body {
   margin-bottom: 20px;
 }
 
+.links-modal__section {
+  font-size: clamp(8px, 0.95vw, 10px);
+  letter-spacing: 0.2em;
+  color: var(--faint);
+  text-transform: uppercase;
+  margin: 18px 0 4px;
+  font-weight: 400;
+}
+
+.links-modal__section:first-of-type {
+  margin-top: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .links-modal__list {
   list-style: none;
   display: flex;
@@ -740,22 +783,13 @@ nav,
 }
 
 </style>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap"></noscript>
-<script>
-if ('ontouchstart' in window) {
-  document.addEventListener('touchmove', function (e) {
-    if (e.target.closest && e.target.closest('.site-modal, .site-modal__dialog')) return;
-    e.preventDefault();
-  }, { passive: false });
-}
-</script>
 </head>
 <body>
 <!-- creative: skip link — instant keyboard access to hero without tabbing through chrome -->
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
 
-<canvas id="bg-canvas" role="presentation" aria-hidden="true"></canvas>
+<p class="sr-only" id="bg-visuals-desc">Fondo animado sincronizado a 145 BPM. Sin audio. Los efectos se reducen con la preferencia de movimiento reducido del sistema.</p>
+<canvas id="bg-canvas" role="img" aria-labelledby="bg-visuals-desc"></canvas>
 <div class="vignette" aria-hidden="true"></div>
 <div class="scanlines" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
@@ -787,7 +821,11 @@ if ('ontouchstart' in window) {
     </button>
   </div>
 
-  <nav class="corner-bl links" aria-label="Enlaces">
+  <nav class="corner-bl links" aria-label="Enlaces principales">
+    <a href="https://www.beatport.com/artist/benny-yasoto/81478" target="_blank" rel="noopener noreferrer" class="link">
+      <span class="l-plat">Música</span>
+      <span class="l-name">Beatport</span>
+    </a>
     <a href="https://gluerecords.club" target="_blank" rel="noopener noreferrer" class="link">
       <span class="l-plat">Sello</span>
       <span class="l-name">Glue Records</span>
@@ -875,23 +913,35 @@ if ('ontouchstart' in window) {
   <div class="site-modal__dialog links-modal__dialog">
     <button type="button" class="site-modal__close links-modal__close" id="links-close" aria-label="Cerrar enlaces"><span aria-hidden="true">×</span></button>
     <h2 class="links-modal__title" id="links-title">Enlaces</h2>
-    <p class="links-modal__subtitle">Prensa · Música · Eventos · Formación</p>
+    <p class="links-modal__subtitle">Música · Booking · Formación · Prensa</p>
+
+    <h3 class="links-modal__section">Música</h3>
     <ul class="links-modal__list">
-      <li><a href="https://musiluz.com/staff/benny_yasoto" target="_blank" rel="noopener noreferrer">Musiluz · Profesor DJ</a></li>
-      <li><a href="https://www.junodownload.com/artists/Benny+Yasoto/tracks/" target="_blank" rel="noopener noreferrer">Juno Download · Discografía</a></li>
       <li><a href="https://www.beatport.com/artist/benny-yasoto/81478" target="_blank" rel="noopener noreferrer">Beatport · Benny Yasoto</a></li>
       <li><a href="https://www.beatport.com/label/eintakt-records/1434" target="_blank" rel="noopener noreferrer">Beatport · Eintakt Records</a></li>
-      <li><a href="https://ra.co/events/2220995" target="_blank" rel="noopener noreferrer">Resident Advisor · Evento</a></li>
-      <li><a href="https://paris15.es/event/orion-pro-oscar-mulero/" target="_blank" rel="noopener noreferrer">Sala París 15 · Orion Pro × Óscar Mulero</a></li>
-      <li><a href="https://entradium.com/en/events/orion-pro-fatima-hajji" target="_blank" rel="noopener noreferrer">Entradium · Orion Pro × Fatima Hajji</a></li>
-      <li><a href="https://entradium.com/en/events/orion-pro-tensal" target="_blank" rel="noopener noreferrer">Entradium · Orion Pro × Tensal</a></li>
-      <li><a href="https://entradium.com/events/polegroup-showcase-x-orion-pro-norbak-ribe" target="_blank" rel="noopener noreferrer">Entradium · Pole Group × Orion Pro</a></li>
-      <li><a href="https://www.suenasur.com/evento/orion-adriana-lpez-173495490867694f9c57578.html" target="_blank" rel="noopener noreferrer">Suena Sur · Orion Pro × Adriana López</a></li>
+      <li><a href="https://www.junodownload.com/artists/Benny+Yasoto/tracks/" target="_blank" rel="noopener noreferrer">Juno Download · Discografía</a></li>
+      <li><a href="https://soundcloud.com/gluerecords" target="_blank" rel="noopener noreferrer">SoundCloud · Glue Records</a></li>
+      <li><a href="https://www.mixcloud.com/gluerecords" target="_blank" rel="noopener noreferrer">Mixcloud · Glue Records</a></li>
+      <li><a href="https://www.amazon.es/Benny-Yasoto/dp/B00EQBQ70G" target="_blank" rel="noopener noreferrer">Amazon · Benny Yasoto</a></li>
+    </ul>
+
+    <h3 class="links-modal__section">Booking y perfil</h3>
+    <ul class="links-modal__list">
+      <li><a href="https://ra.co/dj/bennyyasoto" target="_blank" rel="noopener noreferrer">Resident Advisor · Perfil</a></li>
+      <li><a href="https://ra.co/events/2457690" target="_blank" rel="noopener noreferrer">Resident Advisor · GlueRecords.club First Ritual</a></li>
+      <li><a href="mailto:bookings@bennyasoto.com">Bookings · bookings@bennyasoto.com</a></li>
+    </ul>
+
+    <h3 class="links-modal__section">Formación</h3>
+    <ul class="links-modal__list">
+      <li><a href="https://musiluz.com/staff/benny_yasoto" target="_blank" rel="noopener noreferrer">Musiluz · Profesor DJ</a></li>
+    </ul>
+
+    <h3 class="links-modal__section">Prensa y escena</h3>
+    <ul class="links-modal__list">
       <li><a href="https://www.nostromomagazine.es/techno-internacional-made-in-malaga/" target="_blank" rel="noopener noreferrer">Nostromo Magazine · Made in Málaga</a></li>
       <li><a href="https://viciousmagazine.com/news/musiluz-aprende-disfruta-y-suena-con-un-futuro-que-es-mas-presente-que-nunca-en-el-sector-audiovisual/" target="_blank" rel="noopener noreferrer">Vicious Magazine · Musiluz</a></li>
-      <li><a href="https://www.murcia.com/noticias/2008/06-19-sala-puertas-castilla-murcia-acoge.asp" target="_blank" rel="noopener noreferrer">Murcia.com · Sala Puertas de Castilla</a></li>
-      <li><a href="https://es-es.facebook.com/orionprospain/videos/orion-pro-umekumek-l-poty-l-benny-yasoto-l-alex-ribera-l-paula-kasbaeh-unete-a-n/2983068191708045/" target="_blank" rel="noopener noreferrer">Facebook · Orion Pro × Umek</a></li>
-      <li><a href="https://www.amazon.es/Benny-Yasoto/dp/B00EQBQ70G" target="_blank" rel="noopener noreferrer">Amazon · Benny Yasoto</a></li>
+      <li><a href="https://paris15.es" target="_blank" rel="noopener noreferrer">Sala París 15 · Málaga</a></li>
     </ul>
   </div>
 </div>
@@ -899,81 +949,25 @@ if ('ontouchstart' in window) {
 <!-- visuals:inline:start -->
 <script>
 /**
- * Benny Yasoto — reactive wave/grid + Prisss-style fractals (red, 145 BPM)
- * Pointer/touch warps all layers. Patterns auto-cycle every 16 beats.
+ * Benny Yasoto — full-viewport oscilloscope engine (145 BPM)
+ * Ports GlueRecords #c-benny tile aesthetic: waveform, kick bursts, glitch, scanlines.
  */
 (function () {
   'use strict';
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduceMotion =
+    !window.__VISUALS_FORCE_ANIM__ &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isMobile = window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches;
 
   const BPM = 145;
-  const TEMPO = BPM / 60;
   const BEAT_SEC = 60 / BPM;
-  const WAVE_SCROLL = BPM * 0.078;
-  const GRID_STEP = BPM * 0.00048;
-  const FADE_OPACITY = 0.04;
-  const PULSE_FREQ = TEMPO * 2;
-  const FLASH_THRESHOLD = 0.88;
-  const GLITCH_FREQ = TEMPO * 4;
-  const PATTERN_CYCLE_BEATS = 16;
-
-  const C = {
-    main: [255, 40, 80],
-    hot: [255, 85, 95],
-    deep: [196, 24, 53],
-  };
-
-  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
-  const CSTR = { main: '255,40,80', hot: '255,85,95', deep: '196,24,53' };
+  const STROBE_MS = 60;
 
   const PERFORMANCE_PRESETS = [
-    {
-      name: 'low',
-      pixelStep: 5,
-      maxIterations: 22,
-      dataDensity: 55,
-      dataDensityMobile: 32,
-      barnsleyPoints: 1200,
-      dragonIterations: 6,
-      spiralDepth: 3,
-      glitchSlices: 1,
-      glitchNoise: 0.001,
-      glitchRows: 2,
-      glitchInterval: 480,
-      snowflakeIterations: 2,
-    },
-    {
-      name: 'medium',
-      pixelStep: 4,
-      maxIterations: 32,
-      dataDensity: 90,
-      dataDensityMobile: 50,
-      barnsleyPoints: 2200,
-      dragonIterations: 8,
-      spiralDepth: 4,
-      glitchSlices: 2,
-      glitchNoise: 0.002,
-      glitchRows: 4,
-      glitchInterval: 360,
-      snowflakeIterations: 3,
-    },
-    {
-      name: 'high',
-      pixelStep: 3,
-      maxIterations: 42,
-      dataDensity: 120,
-      dataDensityMobile: 65,
-      barnsleyPoints: 3400,
-      dragonIterations: 10,
-      spiralDepth: 5,
-      glitchSlices: 3,
-      glitchNoise: 0.0035,
-      glitchRows: 5,
-      glitchInterval: 300,
-      snowflakeIterations: 4,
-    },
+    { name: 'low', noiseScale: 200 },
+    { name: 'medium', noiseScale: 320 },
+    { name: 'high', noiseScale: 400 },
   ];
 
   const performanceState = {
@@ -993,19 +987,23 @@ if ('ontouchstart' in window) {
   let ptrY = 0;
   let ptrNX = 0;
   let ptrNY = 0;
-  let time = 0;
   let elapsed = 0;
-  let currentPattern = 0;
-  let lastPatternBeat = -1;
-  let lastGlitchTime = performance.now();
-  let gridT = 0;
-  let reusableImageData = null;
-  let pixelLayer = null;
-  let pixelLayerCtx = null;
-  let rafId = null; // fix: track rAF id so we can cancel when tab is hidden
+  let lastBeat = -1;
+  let glitchUntil = 0;
+  let strobeUntil = 0;
+  let sliceUntil = 0;
 
   function getQuality() {
     return PERFORMANCE_PRESETS[performanceState.presetIndex];
+  }
+
+  function kickEnv(phase) {
+    return Math.max(0, Math.exp(-phase * 14));
+  }
+
+  function distortedSine(x, drive) {
+    const s = Math.sin(x);
+    return Math.max(-1, Math.min(1, s * drive)) / Math.min(1, drive);
   }
 
   function resizeCanvas() {
@@ -1013,11 +1011,6 @@ if ('ontouchstart' in window) {
     height = window.innerHeight;
     canvas.width = width;
     canvas.height = height;
-    reusableImageData = null;
-    if (pixelLayer) {
-      pixelLayer.width = width;
-      pixelLayer.height = height;
-    }
     ptrX = width / 2;
     ptrY = height / 2;
     ptrNX = 0;
@@ -1032,486 +1025,140 @@ if ('ontouchstart' in window) {
     ptrNY = (y / height) * 2 - 1;
   }
 
-  function pulseScale() {
-    return 1 + 0.3 * Math.abs(Math.sin(time * PULSE_FREQ * Math.PI * 2));
+  function drawBackground(beatPhase) {
+    const k = kickEnv(beatPhase);
+    const bgR = Math.floor(3 + k * 15);
+    const bgB = Math.floor(8 * (1 - k));
+    ctx.fillStyle = `rgb(${bgR},0,${bgB})`;
+    ctx.fillRect(0, 0, width, height);
   }
 
-  function kickEnv(phase) {
-    return Math.max(0, Math.exp(-phase * 14));
-  }
-
-  function distortedSine(x, drive) {
-    const d = Math.max(1, drive);
-    const s = Math.sin(x);
-    return Math.max(-1, Math.min(1, (s * d) / d));
-  }
-
-  function ensurePixelLayer() {
-    if (!pixelLayer || pixelLayer.width !== width || pixelLayer.height !== height) {
-      pixelLayer = document.createElement('canvas');
-      pixelLayer.width = width;
-      pixelLayer.height = height;
-      pixelLayerCtx = pixelLayer.getContext('2d', { alpha: true });
-      reusableImageData = null;
-    }
-  }
-
-  function acquireImageData() {
-    ensurePixelLayer();
-    if (!reusableImageData || reusableImageData.width !== width || reusableImageData.height !== height) {
-      reusableImageData = pixelLayerCtx.createImageData(width, height);
-    } else {
-      reusableImageData.data.fill(0);
-    }
-    return reusableImageData;
-  }
-
-  /** Composite pixel fractals without wiping the reactive grid underneath. */
-  function putPixelFractal(imageData) {
-    ensurePixelLayer();
-    pixelLayerCtx.clearRect(0, 0, width, height);
-    pixelLayerCtx.putImageData(imageData, 0, 0);
-    ctx.drawImage(pixelLayer, 0, 0);
-  }
-
-  function fillPixel(d, idx, v) {
-    d[idx] = v;
-    d[idx + 1] = Math.floor(v * 0.2);
-    d[idx + 2] = Math.floor(v * 0.3);
-    d[idx + 3] = 150 + v / 1.4;
-  }
-
-  /* ── Always-on reactive base: grid + waves (pointer-driven) ───── */
-  function drawPulseGrid() {
-    const cx = width * 0.5 + ptrNX * width * 0.28;
-    const cy = height * 0.5 + ptrNY * height * 0.22;
-    const step = Math.max(isMobile ? 44 : 32, Math.floor(width / 14));
-    gridT += GRID_STEP;
-
-    for (let x = step / 2; x < width; x += step) {
-      for (let y = step / 2; y < height; y += step) {
-        const d = Math.hypot(x - cx, y - cy);
-        const wave = Math.sin(gridT * 2.8 - d * 0.018) * 0.5 + 0.5;
-        ctx.beginPath();
-        ctx.arc(x, y, 2.8 * wave + 0.8, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${CSTR.main},${(wave * 0.6 + 0.15).toFixed(2)})`;
-        ctx.fill();
-        if (x + step < width) {
-          const w2 = Math.sin(gridT * 2.8 - (d + step * 0.5) * 0.018) * 0.5 + 0.5;
-          ctx.beginPath();
-          ctx.moveTo(x, y);
-          ctx.lineTo(x + step, y);
-          ctx.strokeStyle = `rgba(${CSTR.deep},${(wave * w2 * 0.28).toFixed(2)})`;
-          ctx.lineWidth = 0.9;
-          ctx.stroke();
-        }
-      }
-    }
-
-    for (let ring = 1; ring < 5; ring++) {
-      const r = ring * Math.max(width, height) * 0.085 + Math.sin(gridT * 1.8 + ring) * 14;
-      const al = Math.max(0, 0.38 - ring * 0.06);
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(${CSTR.main},${al.toFixed(2)})`;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-  }
-
-  function drawWaveform(beatPhase) {
+  function drawWaveform(beatPhase, elapsedSec) {
     const mx = ptrX / width;
     const my = ptrY / height;
-    const cy = height * 0.5 + (my - 0.5) * height * 0.14;
+    const cy = height * 0.5;
     const kEnv = kickEnv(beatPhase);
-    const drive = 1 + my * 14 + kEnv * 18;
-    const freq = 1.6 + mx * 4.5;
-    const amp = (0.32 + kEnv * 0.58) * height * 0.44;
+    const distDrive = 1 + my * 18 + kEnv * 22;
+    const freqMult = 2 + mx * 6;
+    const ampScale = (0.28 + kEnv * 0.55) * height;
 
     const layers = [
-      { freq, col: `rgba(${CSTR.main},`, lw: 2.8 },
-      { freq: freq * 0.5, col: `rgba(${CSTR.deep},`, lw: 1.6 },
-      { freq: freq * 1.8, col: `rgba(${CSTR.hot},`, lw: 1 },
+      { freq: freqMult, col: 'rgba(255,20,20,', lw: 2.2, phase: 0 },
+      { freq: freqMult * 0.5, col: 'rgba(255,255,255,', lw: 0.8, phase: Math.PI },
+      { freq: freqMult * 2, col: 'rgba(180,0,0,', lw: 0.5, phase: elapsedSec * 0.7 },
     ];
 
-    layers.forEach((layer, li) => {
+    layers.forEach(({ freq, col, lw, phase: ph }) => {
       ctx.beginPath();
       for (let px = 0; px <= width; px += 2) {
-        const t2 =
-          (px / width) * Math.PI * 2 * layer.freq +
-          elapsed * WAVE_SCROLL * layer.freq +
-          beatPhase * Math.PI * 2 +
-          ptrNX * 0.8 +
-          li * 0.5;
-        const y = cy + distortedSine(t2, drive) * amp;
+        const t2 = (px / width) * Math.PI * 2 * freq + elapsedSec * 4.2 * freq * 0.3 + ph;
+        const raw = distortedSine(t2, distDrive);
+        const y = cy + raw * ampScale * (0.5 + Math.sin(px * 0.012 + elapsedSec) * 0.5);
         px === 0 ? ctx.moveTo(px, y) : ctx.lineTo(px, y);
       }
-      const al = 0.6 + kEnv * 0.38;
-      ctx.strokeStyle = `${layer.col}${al})`;
-      ctx.lineWidth = layer.lw + kEnv;
+      const al = (0.6 + kEnv * 0.4).toFixed(2);
+      ctx.strokeStyle = `${col}${al})`;
+      ctx.lineWidth = lw + kEnv * 1.5;
       ctx.stroke();
     });
   }
 
   function drawKickBurst(beatPhase) {
     const env = kickEnv(beatPhase);
-    if (env < 0.05) return;
-    const m = isMobile ? 0.5 : 0.8;
-    const g = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width * 0.52);
-    g.addColorStop(0, `rgba(${CSTR.main},${(env * 0.14 * m).toFixed(2)})`);
-    g.addColorStop(0.35, `rgba(${CSTR.deep},${(env * 0.07 * m).toFixed(2)})`);
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g;
+    if (env < 0.04) return;
+    const n = Math.floor(6 + env * 14);
+    for (let i = 0; i < n; i++) {
+      const x = Math.random() * width;
+      const len = (20 + env * height * 0.7) * (0.3 + Math.random() * 0.7);
+      const y0 = Math.random() * height;
+      ctx.beginPath();
+      ctx.moveTo(x, y0);
+      ctx.lineTo(x, y0 + len);
+      ctx.strokeStyle = `rgba(255,255,255,${(env * (0.4 + Math.random() * 0.5)).toFixed(2)})`;
+      ctx.lineWidth = 0.5 + Math.random() * 1.2;
+      ctx.stroke();
+    }
+    const grd = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width * 0.6);
+    grd.addColorStop(0, `rgba(255,0,0,${(env * 0.22).toFixed(2)})`);
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grd;
     ctx.fillRect(0, 0, width, height);
   }
 
-  /* ── Fractal patterns (pointer-reactive, auto-cycle) ──────────── */
-  function drawDataStream(quality) {
-    const base = isMobile ? quality.dataDensityMobile : quality.dataDensity;
-    const density = base + ptrX / width * base * 0.5;
-    const speed = 9 + (ptrY / height) * 20;
-    ctx.font = `${13 + pulseScale() * 9}px monospace`;
-    for (let i = 0; i < density; i++) {
+  function drawGlitchSlices(intensity) {
+    const n = Math.floor(2 + intensity * 12);
+    for (let i = 0; i < n; i++) {
+      const y = Math.random() * height;
+      const h2 = 1 + Math.random() * (4 + intensity * 8);
+      const shift = (Math.random() - 0.5) * (20 + intensity * width * 0.35);
+      try {
+        const slice = ctx.getImageData(0, y, width, h2);
+        ctx.putImageData(slice, shift, y);
+      } catch (_) {
+        /* canvas readback unavailable */
+      }
+      ctx.fillStyle = `rgba(255,0,0,${(0.05 + Math.random() * 0.15 * intensity).toFixed(2)})`;
+      ctx.fillRect(0, y, width, h2);
+    }
+  }
+
+  function drawStrobe(intensity) {
+    ctx.fillStyle = `rgba(255,255,255,${(intensity * 0.85).toFixed(2)})`;
+    ctx.fillRect(0, 0, width, height);
+  }
+
+  function drawScanlines() {
+    for (let y = 0; y < height; y += 3) {
+      ctx.fillStyle = 'rgba(0,0,0,0.18)';
+      ctx.fillRect(0, y, width, 1);
+    }
+  }
+
+  function drawNoise(intensity, quality) {
+    const scale = isMobile ? quality.noiseScale * 0.5 : quality.noiseScale;
+    const n = Math.floor(intensity * scale);
+    for (let i = 0; i < n; i++) {
       const x = Math.random() * width;
-      const y = (Math.random() * height + time * speed) % height;
-      const bits = (Math.random() > 0.5 ? '1' : '0').repeat(8 + Math.floor(Math.random() * 14));
-      const col = Math.random() > 0.5 ? C.hot : C.main;
-      ctx.fillStyle = rgba(col, 0.45 + Math.sin(time + i) * 0.25);
-      ctx.fillText(bits, x, y);
+      const y = Math.random() * height;
+      const v = Math.random();
+      ctx.fillStyle =
+        v > 0.7
+          ? `rgba(255,0,0,${(0.4 + Math.random() * 0.6).toFixed(2)})`
+          : `rgba(255,255,255,${(Math.random() * 0.4).toFixed(2)})`;
+      ctx.fillRect(x, y, 1, 1);
     }
   }
 
-  function drawDataField(quality) {
-    const id = acquireImageData();
-    const d = id.data;
-    const step = quality.pixelStep;
-    const maxIter = Math.round(quality.maxIterations + (ptrY / height) * 10);
-    const zoom = 1.15 + (ptrX / width) * 0.6 + 0.25 * Math.sin(time * PULSE_FREQ);
-    const cX = -0.75 + (ptrX / width) * 0.3;
-    const cY = 0.2 + (ptrY / height) * 0.18;
-    const ox = ptrNX * 0.12;
-    const oy = ptrNY * 0.1;
-
-    for (let px = 0; px < width; px += step) {
-      for (let py = 0; py < height; py += step) {
-        let x = (px + step * 0.5 - width / 2) / (0.5 * zoom * width) + ox;
-        let y = (py + step * 0.5 - height / 2) / (0.5 * zoom * height) + oy;
-        let iter = 0;
-        while (x * x + y * y <= 4 && iter < maxIter) {
-          const xt = x * x - y * y + cX;
-          y = 2 * x * y + cY;
-          x = xt;
-          iter++;
-        }
-        if (iter < maxIter) {
-          const v = 255 * (iter / maxIter * pulseScale());
-          for (let dx = 0; dx < step && px + dx < width; dx++) {
-            for (let dy = 0; dy < step && py + dy < height; dy++) {
-              fillPixel(d, ((py + dy) * width + (px + dx)) * 4, v);
-            }
-          }
-        }
-      }
-    }
-    putPixelFractal(id);
+  function drawBpmWatermark() {
+    ctx.font = `bold ${Math.max(9, width * 0.028)}px 'Share Tech Mono',monospace`;
+    ctx.fillStyle = 'rgba(255,0,0,0.18)';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'top';
+    ctx.fillText(`${BPM} BPM`, width - 10, 10);
+    ctx.textAlign = 'left';
   }
 
-  function drawDataPath(cx2, cy2, segments, depth, rotation) {
-    ctx.save();
-    ctx.translate(cx2, cy2);
-    ctx.rotate(rotation + Math.sin(time * TEMPO) * 0.35);
-    for (let i = 0; i < depth; i++) {
-      const len = 60 + i * 28 * pulseScale();
-      const aStep = (Math.PI * 2) / segments;
-      for (let j = 0; j < segments; j++) {
-        const a = j * aStep + Math.cos(time + i) * 0.18;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(Math.cos(a) * len, Math.sin(a) * len);
-        ctx.strokeStyle = rgba(i % 2 ? C.deep : C.main, 0.5 - (i / depth) * 0.38);
-        ctx.lineWidth = 1.4 + pulseScale() * 2;
-        ctx.stroke();
-      }
-    }
-    ctx.restore();
-  }
+  function triggerBeatEffects(now, beatN) {
+    if (isMobile) return;
+    const isFourBeat = beatN % 4 === 0;
+    const isEightBeat = beatN % 8 === 0;
 
-  function drawBinaryTriangle(ox, oy, size, depth) {
-    ctx.fillStyle = rgba(C.main, 0.8);
-    ctx.strokeStyle = rgba(C.hot, 0.6);
-    ctx.lineWidth = pulseScale() * 1.4;
-    function sier(x, y, sz, d) {
-      if (d === 0 || sz < 2) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + sz, y);
-        ctx.lineTo(x + sz / 2, y - (sz * Math.sqrt(3)) / 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        return;
-      }
-      const hs = sz / 2;
-      const hh = (sz * Math.sqrt(3)) / 2;
-      sier(x, y, hs, d - 1);
-      sier(x + hs, y, hs, d - 1);
-      sier(x + hs / 2, y - hh / 2, hs, d - 1);
-    }
-    sier(ox, oy, size, depth);
-  }
+    glitchUntil = now + (isFourBeat ? 180 : 55) + Math.random() * 40;
 
-  function drawSpiralPattern(quality) {
-    const size = Math.min(width, height) * 0.28;
-    const maxLevel = quality.spiralDepth + Math.floor((ptrX / width) * 2);
-    const scale = 0.78 + (ptrY / height) * 0.1;
-    const spread = 0.18 + (ptrX / width) * 0.18 + Math.sin(time) * 0.08;
-    const sides = Math.max(3, Math.floor(3 + (ptrY / height) * 3));
-    ctx.strokeStyle = rgba(C.main, 0.82);
-    ctx.fillStyle = rgba(C.hot, 0.82);
-    ctx.lineWidth = Math.max(1.2, 3.5 * pulseScale());
-
-    function branch(level) {
-      if (level > maxLevel) return;
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(size, 0);
-      ctx.stroke();
-      if (level < maxLevel) {
-        ctx.save();
-        ctx.translate(size * 0.12, 0);
-        ctx.scale(scale, scale);
-        ctx.rotate(spread);
-        branch(level + 1);
-        ctx.restore();
-        ctx.save();
-        ctx.translate(size * 0.48, 0);
-        ctx.scale(scale, scale);
-        ctx.rotate(spread * 1.35);
-        branch(level + 1);
-        ctx.restore();
-      }
-      ctx.beginPath();
-      ctx.arc(size * 1.05, 0, size * 0.08, 0, Math.PI * 2);
-      ctx.fill();
+    if (isFourBeat) {
+      // Photosensitivity: strobe capped at 60ms per flash
+      strobeUntil = now + STROBE_MS;
     }
 
-    const ox = width / 2 + ptrNX * width * 0.06;
-    const oy = height / 2 + ptrNY * height * 0.05;
-    ctx.save();
-    ctx.translate(ox, oy);
-    for (let i = 0; i < sides; i++) {
-      ctx.rotate((Math.PI * 2) / sides + time * 0.1);
-      branch(0);
+    if (isEightBeat) {
+      sliceUntil = now + 120;
     }
-    ctx.restore();
-  }
-
-  function drawMandelbrot(quality) {
-    const id = acquireImageData();
-    const d = id.data;
-    const step = quality.pixelStep;
-    const maxIter = Math.round(quality.maxIterations + (ptrY / height) * 8);
-    const zoom = 1.2 + (ptrX / width) * 0.55 + 0.25 * Math.sin(time * PULSE_FREQ);
-    const panX = ptrNX * 0.35;
-    const panY = ptrNY * 0.35;
-
-    for (let px = 0; px < width; px += step) {
-      for (let py = 0; py < height; py += step) {
-        let x0 = (px + step * 0.5 - width / 2) / (0.25 * zoom * width) + panX - 0.5;
-        let y0 = (py + step * 0.5 - height / 2) / (0.25 * zoom * height) + panY;
-        let x = 0;
-        let y = 0;
-        let iter = 0;
-        while (x * x + y * y <= 4 && iter < maxIter) {
-          const xt = x * x - y * y + x0;
-          y = 2 * x * y + y0;
-          x = xt;
-          iter++;
-        }
-        if (iter < maxIter) {
-          const v = 255 * (iter / maxIter * pulseScale());
-          for (let dx = 0; dx < step && px + dx < width; dx++) {
-            for (let dy = 0; dy < step && py + dy < height; dy++) {
-              fillPixel(d, ((py + dy) * width + (px + dx)) * 4, v);
-            }
-          }
-        }
-      }
-    }
-    putPixelFractal(id);
-  }
-
-  function drawDragonCurve(quality) {
-    ctx.strokeStyle = rgba(C.main, 0.82);
-    ctx.lineWidth = Math.max(1.4, 1.8 * pulseScale());
-    ctx.beginPath();
-    const ox = width / 2 + ptrNX * width * 0.08;
-    const oy = height / 2 + ptrNY * height * 0.06;
-    let x = ox;
-    let y = oy;
-    let angle = time * 0.15;
-    const len = 4 + (ptrY / height) * 8;
-    const iters = Math.min(11, quality.dragonIterations + Math.floor((ptrX / width) * 3));
-    function dragon(iter, dir) {
-      if (iter === 0) {
-        const ex = x + len * Math.cos(angle);
-        const ey = y + len * Math.sin(angle);
-        ctx.moveTo(x, y);
-        ctx.lineTo(ex, ey);
-        x = ex;
-        y = ey;
-        return;
-      }
-      dragon(iter - 1, 1);
-      angle += dir * (Math.PI / 2);
-      dragon(iter - 1, -1);
-    }
-    dragon(iters, 1);
-    ctx.stroke();
-  }
-
-  function drawBarnsleyFern(quality) {
-    ctx.fillStyle = rgba(C.main, 0.78);
-    let x = 0;
-    let y = 0;
-    for (let i = 0; i < quality.barnsleyPoints; i++) {
-      const r = Math.random();
-      let nx;
-      let ny;
-      if (r < 0.01) { nx = 0; ny = 0.16 * y; }
-      else if (r < 0.86) { nx = 0.85 * x + 0.04 * y; ny = -0.04 * x + 0.85 * y + 1.6; }
-      else if (r < 0.93) { nx = 0.2 * x - 0.26 * y; ny = 0.23 * x + 0.22 * y + 1.6; }
-      else { nx = -0.15 * x + 0.28 * y; ny = 0.26 * x + 0.24 * y + 0.44; }
-      x = nx;
-      y = ny;
-      const px2 = width / 2 + x * 48 + ptrNX * 80;
-      const py2 = height - y * 48 - (ptrY / height) * 90;
-      ctx.fillRect(px2, py2, 1.2, 1.2);
-    }
-  }
-
-  function drawKochSnowflake(quality) {
-    ctx.strokeStyle = rgba(C.hot, 0.82);
-    ctx.lineWidth = 1.2;
-    const size = Math.min(width, height) * 0.28;
-    const iters = Math.max(1, Math.min(4, quality.snowflakeIterations + Math.floor((ptrX / width) * 1.5)));
-    const angle = time * 0.1;
-    const cx = width / 2 + ptrNX * width * 0.05;
-    const cy = height / 2 + ptrNY * height * 0.04;
-
-    function koch(x1, y1, x2, y2, iter) {
-      if (iter === 0) {
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-        return;
-      }
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-      const x3 = x1 + dx / 3;
-      const y3 = y1 + dy / 3;
-      const x4 = x1 + (2 * dx) / 3;
-      const y4 = y1 + (2 * dy) / 3;
-      const x5 = x3 + (x4 - x3) * Math.cos(Math.PI / 3) - (y4 - y3) * Math.sin(Math.PI / 3);
-      const y5 = y3 + (x4 - x3) * Math.sin(Math.PI / 3) + (y4 - y3) * Math.cos(Math.PI / 3);
-      koch(x1, y1, x3, y3, iter - 1);
-      koch(x3, y3, x5, y5, iter - 1);
-      koch(x5, y5, x4, y4, iter - 1);
-      koch(x4, y4, x2, y2, iter - 1);
-    }
-
-    for (let i = 0; i < 3; i++) {
-      const a1 = angle + (i * 2 * Math.PI) / 3;
-      const a2 = angle + ((i + 1) * 2 * Math.PI) / 3;
-      koch(cx + size * Math.cos(a1), cy + size * Math.sin(a1), cx + size * Math.cos(a2), cy + size * Math.sin(a2), iters);
-    }
-  }
-
-  function applyGlitch(quality) {
-    const now = performance.now();
-    if (now - lastGlitchTime < quality.glitchInterval) return;
-    lastGlitchTime = now;
-    try {
-      const imageData = ctx.getImageData(0, 0, width, height);
-      const data = imageData.data;
-      for (let s = 0; s < quality.glitchSlices; s++) {
-        const sliceY = Math.floor(Math.random() * height);
-        const sliceH = Math.floor(8 + Math.random() * 16);
-        const shift = Math.floor(-28 + Math.random() * 56);
-        for (let y = sliceY; y < sliceY + sliceH && y < height; y++) {
-          for (let x = 0; x < width; x++) {
-            const oi = (y * width + x) * 4;
-            const nx = (x + shift + width) % width;
-            const ni = (y * width + nx) * 4;
-            data[ni] = data[oi];
-            data[ni + 1] = data[oi + 1];
-            data[ni + 2] = data[oi + 2];
-            data[ni + 3] = data[oi + 3];
-          }
-        }
-      }
-      ctx.putImageData(imageData, 0, 0);
-    } catch (_) { /* skip if security/taint */ }
-  }
-
-  function drawFractalPattern(quality) {
-    switch (currentPattern) {
-      case 0: drawDataStream(quality); break;
-      case 1: drawDataField(quality); break;
-      case 2: {
-        const count = (quality.name === 'high' ? 4 : 3) + Math.floor((ptrY / height) * 2);
-        const segments = Math.max(10, Math.floor(12 + (ptrX / width) * 12));
-        const depth = Math.min(9, quality.spiralDepth + 4);
-        for (let i = 0; i < count; i++) {
-          const x = width / 2 + ptrNX * width * 0.12 + Math.sin(time * TEMPO + i) * width * 0.16;
-          const y = height / 2 + ptrNY * height * 0.1 + Math.cos(time * TEMPO + i) * height * 0.16;
-          drawDataPath(x, y, segments, depth, (time * TEMPO) / 2);
-        }
-        break;
-      }
-      case 3: {
-        const size = height * 0.42 + (ptrY / height) * height * 0.2;
-        const offsetX = width / 2 - size / 2 + ptrNX * 30;
-        const offsetY = height / 2 + size * 0.26 + ptrNY * 20;
-        drawBinaryTriangle(offsetX, offsetY, size, quality.spiralDepth + 2);
-        ctx.save();
-        ctx.translate(width / 2 + ptrNX * 20, height / 2 + ptrNY * 15);
-        ctx.rotate((time * TEMPO) / 3);
-        ctx.translate(-width / 2, -height / 2);
-        drawBinaryTriangle(offsetX, offsetY, size * 0.68, quality.spiralDepth + 1);
-        ctx.restore();
-        break;
-      }
-      case 4: drawSpiralPattern(quality); break;
-      case 5: drawMandelbrot(quality); break;
-      case 6: drawDragonCurve(quality); break;
-      case 7: drawBarnsleyFern(quality); break;
-      case 8: drawKochSnowflake(quality); break;
-      default: break;
-    }
-  }
-
-  function maybeCyclePattern(beatN) {
-    const bar = Math.floor(beatN / PATTERN_CYCLE_BEATS);
-    if (bar !== lastPatternBeat) {
-      lastPatternBeat = bar;
-      currentPattern = (currentPattern + 1) % 9;
-    }
-  }
-
-  function manualCycle(e) {
-    if (e.target.closest('a, button, .site-modal, .site-modal *')) return;
-    currentPattern = (currentPattern + 1) % 9;
-    lastPatternBeat = Math.floor(Math.floor(elapsed / BEAT_SEC) / PATTERN_CYCLE_BEATS);
   }
 
   function animate(timestamp) {
-    // fix: when hidden, cancelAnimationFrame stops the loop entirely (was still scheduling rAF)
-    if (!width || !height || document.hidden) {
-      rafId = null;
-      return;
-    }
+    requestAnimationFrame(animate);
+
+    if (!width || !height || document.hidden) return;
 
     const now = timestamp || performance.now();
     let delta = now - performanceState.lastTimestamp;
@@ -1525,56 +1172,47 @@ if ('ontouchstart' in window) {
     if (performanceState.framesElapsed % 45 === 0) {
       const fps = performanceState.fpsSample;
       if (fps < TARGET_FPS - 8 && performanceState.presetIndex > 0) performanceState.presetIndex -= 1;
-      else if (fps > TARGET_FPS + 10 && performanceState.presetIndex < PERFORMANCE_PRESETS.length - 1) performanceState.presetIndex += 1;
+      else if (fps > TARGET_FPS + 10 && performanceState.presetIndex < PERFORMANCE_PRESETS.length - 1) {
+        performanceState.presetIndex += 1;
+      }
     }
 
     const quality = getQuality();
-    time += delta * 0.00125;
     elapsed += delta / 1000;
 
-    const beatPhase = (elapsed / BEAT_SEC) % 1;
-    const beatN = Math.floor(elapsed / BEAT_SEC);
-    maybeCyclePattern(beatN);
+    const beatF = elapsed / BEAT_SEC;
+    const beatN = Math.floor(beatF);
+    const beatPhase = beatF - beatN;
 
-    ctx.fillStyle = `rgba(3, 3, 8, ${FADE_OPACITY})`;
-    ctx.fillRect(0, 0, width, height);
-
-    if (Math.sin(time * PULSE_FREQ * Math.PI * 2) > FLASH_THRESHOLD) {
-      ctx.fillStyle = rgba(C.main, 0.12);
-      ctx.fillRect(0, 0, width, height);
+    if (beatN !== lastBeat) {
+      lastBeat = beatN;
+      triggerBeatEffects(now, beatN);
     }
 
-    ctx.globalAlpha = 0.72;
-    drawFractalPattern(quality);
-    ctx.globalAlpha = 1;
+    const isGlitching = !isMobile && now < glitchUntil;
+    const isStrobing = !isMobile && now < strobeUntil;
+    const isSlicing = !isMobile && now < sliceUntil;
+    const glitchInt = isGlitching ? Math.min(1, (glitchUntil - now) / 180) : 0;
 
-    drawPulseGrid();
-    drawWaveform(beatPhase);
+    drawBackground(beatPhase);
+    drawWaveform(beatPhase, elapsed);
     drawKickBurst(beatPhase);
 
-    if (!isMobile && quality.name !== 'low' && Math.sin(time * GLITCH_FREQ * Math.PI * 2) > 0.94) {
-      applyGlitch(quality);
-    }
+    if (isGlitching) drawGlitchSlices(glitchInt);
+    if (isSlicing) drawGlitchSlices(0.8 + Math.random() * 0.2);
 
-    rafId = requestAnimationFrame(animate);
-  }
+    drawNoise(0.1 + glitchInt * 0.9 + kickEnv(beatPhase) * 0.4, quality);
+    if (!isMobile) drawScanlines();
 
-  function startAnimationLoop() {
-    if (reduceMotion || rafId !== null) return;
-    rafId = requestAnimationFrame(animate);
-  }
+    if (isStrobing) drawStrobe(Math.min(1, (strobeUntil - now) / STROBE_MS));
 
-  function stopAnimationLoop() {
-    if (rafId !== null) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
-    }
+    drawBpmWatermark();
   }
 
   function boot() {
     canvas = document.getElementById('bg-canvas');
     if (!canvas) return;
-    ctx = canvas.getContext('2d');
+    ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
     document.body.classList.add('visuals-ready');
@@ -1589,43 +1227,23 @@ if ('ontouchstart' in window) {
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', resizeCanvas, { passive: true });
     }
-    document.addEventListener('click', manualCycle);
-
-    // fix: pause GPU loop when tab hidden; restart cleanly on visible
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) stopAnimationLoop();
-      else if (!reduceMotion) startAnimationLoop();
-    });
 
     if (reduceMotion) {
-      ctx.fillStyle = '#030308';
-      ctx.fillRect(0, 0, width, height);
-      currentPattern = 1;
-      drawFractalPattern(getQuality());
-      drawPulseGrid();
-      drawWaveform(0);
+      drawBackground(0);
+      drawWaveform(0, 0);
+      drawBpmWatermark();
       return;
     }
 
-    ctx.fillStyle = '#030308';
+    ctx.fillStyle = 'rgb(3,0,8)';
     ctx.fillRect(0, 0, width, height);
-    startAnimationLoop();
-  }
-
-  // perf: defer fractal boot until after LCP h1 paints
-  function scheduleBoot() {
-    const run = () => boot();
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(run, { timeout: 500 });
-    } else {
-      setTimeout(run, 500);
-    }
+    requestAnimationFrame(animate);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', scheduleBoot, { once: true });
+    document.addEventListener('DOMContentLoaded', boot, { once: true });
   } else {
-    scheduleBoot();
+    boot();
   }
 })();
 </script>
