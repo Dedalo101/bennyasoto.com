@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#030308">
 <meta name="color-scheme" content="dark">
 <!-- CSP: unsafe-inline required for inline canvas script on GitHub Pages (no HTTP headers). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://widget.mixcloud.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https://www.mixcloud.com; frame-src https://www.mixcloud.com; frame-ancestors 'none'">
 <title>Benny Yasoto · Hard Techno · Málaga</title>
 
 <link rel="canonical" href="https://bennyasoto.com/">
@@ -788,7 +788,7 @@ nav,
 <!-- creative: skip link — instant keyboard access to hero without tabbing through chrome -->
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
 
-<p class="sr-only" id="bg-visuals-desc">Fondo animado sincronizado a 145 BPM. Sin audio. Los efectos se reducen con la preferencia de movimiento reducido del sistema.</p>
+<p class="sr-only" id="bg-visuals-desc">Fondo animado sincronizado a 145 BPM con audio. Pulsa para iniciar si el navegador bloquea la reproducción automática.</p>
 <canvas id="bg-canvas" role="img" aria-labelledby="bg-visuals-desc"></canvas>
 <div class="vignette" aria-hidden="true"></div>
 <div class="scanlines" aria-hidden="true"></div>
@@ -949,13 +949,13 @@ nav,
 <!-- visuals:inline:start -->
 <script>
 /**
- * Benny Yasoto — full-viewport oscilloscope engine (145 BPM)
- * Ports GlueRecords #c-benny tile aesthetic: waveform, kick bursts, glitch, scanlines.
+ * Benny Yasoto — audio-synced oscilloscope engine (145 BPM)
+ * Waveform + kick follow playback; Mixcloud fallback if local MP3 is missing.
  */
 (function () {
   'use strict';
 
-  const reduceMotion =
+  const reduceEffects =
     !window.__VISUALS_FORCE_ANIM__ &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isMobile = window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches;
@@ -963,6 +963,8 @@ nav,
   const BPM = 145;
   const BEAT_SEC = 60 / BPM;
   const STROBE_MS = 60;
+  const AUDIO_SRC = 'assets/audio/benny-yasoto.mp3';
+  const MIXCLOUD_FEED = '/forzinvalves/benny-yasoto-mor-club-30-12-2012/';
 
   const PERFORMANCE_PRESETS = [
     { name: 'low', noiseScale: 200 },
@@ -973,7 +975,7 @@ nav,
   const performanceState = {
     presetIndex: isMobile ? 0 : 2,
     fpsSample: 60,
-    lastTimestamp: performance.now(),
+    lastTimestamp: 0,
     framesElapsed: 0,
   };
 
@@ -988,10 +990,23 @@ nav,
   let ptrNX = 0;
   let ptrNY = 0;
   let elapsed = 0;
+  let wallElapsed = 0;
   let lastBeat = -1;
   let glitchUntil = 0;
   let strobeUntil = 0;
   let sliceUntil = 0;
+  let audioBass = 0;
+  let audioMode = 'clock';
+  let audioPlaying = false;
+  let unlocked = false;
+  let unlockEl = null;
+
+  let audioEl = null;
+  let audioCtx = null;
+  let analyser = null;
+  let freqData = null;
+  let mixWidget = null;
+  let mixPosition = 0;
 
   function getQuality() {
     return PERFORMANCE_PRESETS[performanceState.presetIndex];
@@ -1004,6 +1019,183 @@ nav,
   function distortedSine(x, drive) {
     const s = Math.sin(x);
     return Math.max(-1, Math.min(1, s * drive)) / Math.min(1, drive);
+  }
+
+  function injectUnlockStyles() {
+    if (document.getElementById('visuals-unlock-style')) return;
+    const style = document.createElement('style');
+    style.id = 'visuals-unlock-style';
+    style.textContent = [
+      '.audio-unlock {',
+      '  position: fixed; inset: 0; z-index: 200;',
+      '  display: flex; align-items: center; justify-content: center;',
+      '  background: rgba(3, 3, 8, 0.72);',
+      '  border: 0; cursor: pointer; padding: 0;',
+      '  font-family: "Share Tech Mono", ui-monospace, monospace;',
+      '  letter-spacing: 0.35em; text-transform: uppercase;',
+      '  color: #ff3355; font-size: clamp(11px, 2.5vw, 14px);',
+      '}',
+      '.audio-unlock span {',
+      '  border: 1px solid rgba(255, 51, 85, 0.45);',
+      '  padding: 14px 22px; background: rgba(3, 3, 8, 0.9);',
+      '}',
+      '.audio-unlock.is-hidden { display: none; }',
+      '#mixcloud-player {',
+      '  position: fixed; bottom: 12px; right: 12px; width: min(340px, 92vw);',
+      '  height: 60px; border: 0; z-index: 50; opacity: 0.9;',
+      '}',
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  function showUnlock() {
+    if (unlockEl || unlocked) return;
+    injectUnlockStyles();
+    unlockEl = document.createElement('button');
+    unlockEl.type = 'button';
+    unlockEl.className = 'audio-unlock';
+    unlockEl.setAttribute('aria-label', 'Iniciar audio y visuales');
+    unlockEl.innerHTML = '<span>Pulsa para entrar · 145 BPM</span>';
+    unlockEl.addEventListener('click', unlockExperience, { once: true });
+    document.body.appendChild(unlockEl);
+  }
+
+  function hideUnlock() {
+    unlocked = true;
+    if (unlockEl) unlockEl.classList.add('is-hidden');
+  }
+
+  function loadMixcloudScript() {
+    return new Promise((resolve) => {
+      if (window.Mixcloud) {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://widget.mixcloud.com/media/js/widgetApi.js';
+      script.onload = () => resolve();
+      script.onerror = () => resolve();
+      document.head.appendChild(script);
+    });
+  }
+
+  function initMixcloud() {
+    return loadMixcloudScript().then(() => {
+      if (!window.Mixcloud) return false;
+      let iframe = document.getElementById('mixcloud-player');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'mixcloud-player';
+        iframe.title = 'Benny Yasoto — Mixcloud';
+        iframe.src =
+          'https://www.mixcloud.com/widget/iframe/?feed=' +
+          encodeURIComponent(MIXCLOUD_FEED) +
+          '&hide_cover=1&mini=1';
+        iframe.allow = 'autoplay';
+        document.body.appendChild(iframe);
+      }
+      mixWidget = window.Mixcloud.PlayerWidget(iframe);
+      return mixWidget.ready.then(() => {
+        audioMode = 'mixcloud';
+        return true;
+      });
+    });
+  }
+
+  function initFileAudio() {
+    return new Promise((resolve) => {
+      audioEl = document.createElement('audio');
+      audioEl.id = 'site-audio';
+      audioEl.src = AUDIO_SRC;
+      audioEl.loop = true;
+      audioEl.crossOrigin = 'anonymous';
+      audioEl.preload = 'auto';
+      audioEl.style.cssText = 'position:fixed;width:0;height:0;opacity:0;pointer-events:none;';
+      document.body.appendChild(audioEl);
+
+      const onReady = () => {
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) {
+            audioMode = 'file';
+            resolve(true);
+            return;
+          }
+          audioCtx = new Ctx();
+          const source = audioCtx.createMediaElementSource(audioEl);
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 2048;
+          analyser.smoothingTimeConstant = 0.82;
+          freqData = new Uint8Array(analyser.frequencyBinCount);
+          source.connect(analyser);
+          analyser.connect(audioCtx.destination);
+          audioMode = 'file';
+          resolve(true);
+        } catch (_) {
+          audioMode = 'file';
+          resolve(true);
+        }
+      };
+
+      audioEl.addEventListener('canplaythrough', onReady, { once: true });
+      audioEl.addEventListener(
+        'error',
+        () => {
+          audioEl.remove();
+          audioEl = null;
+          resolve(false);
+        },
+        { once: true }
+      );
+      audioEl.load();
+    });
+  }
+
+  function readAnalyser() {
+    if (!analyser || !freqData) return;
+    analyser.getByteFrequencyData(freqData);
+    let bass = 0;
+    const bins = Math.min(16, freqData.length);
+    for (let i = 0; i < bins; i++) bass += freqData[i];
+    audioBass = bass / (bins * 255);
+  }
+
+  function pollMixPosition() {
+    if (!mixWidget) return;
+    mixWidget.getPosition((pos) => {
+      mixPosition = pos;
+    });
+  }
+
+  async function tryAutoplay() {
+    if (audioMode === 'file' && audioEl) {
+      if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+      try {
+        await audioEl.play();
+        audioPlaying = true;
+        hideUnlock();
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+    if (audioMode === 'mixcloud' && mixWidget) {
+      try {
+        mixWidget.play();
+        audioPlaying = true;
+        hideUnlock();
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  async function unlockExperience() {
+    hideUnlock();
+    const ok = await tryAutoplay();
+    if (!ok) showUnlock();
   }
 
   function resizeCanvas() {
@@ -1025,8 +1217,14 @@ nav,
     ptrNY = (y / height) * 2 - 1;
   }
 
+  function effectiveKick(beatPhase) {
+    const clock = kickEnv(beatPhase);
+    const audioHit = audioBass * 1.35;
+    return Math.min(1, Math.max(clock, audioHit));
+  }
+
   function drawBackground(beatPhase) {
-    const k = kickEnv(beatPhase);
+    const k = effectiveKick(beatPhase);
     const bgR = Math.floor(3 + k * 15);
     const bgB = Math.floor(8 * (1 - k));
     ctx.fillStyle = `rgb(${bgR},0,${bgB})`;
@@ -1037,10 +1235,10 @@ nav,
     const mx = ptrX / width;
     const my = ptrY / height;
     const cy = height * 0.5;
-    const kEnv = kickEnv(beatPhase);
-    const distDrive = 1 + my * 18 + kEnv * 22;
-    const freqMult = 2 + mx * 6;
-    const ampScale = (0.28 + kEnv * 0.55) * height;
+    const kEnv = effectiveKick(beatPhase);
+    const distDrive = 1 + my * 18 + kEnv * 22 + audioBass * 28;
+    const freqMult = 2 + mx * 6 + audioBass * 1.5;
+    const ampScale = (0.28 + kEnv * 0.55 + audioBass * 0.45) * height;
 
     const layers = [
       { freq: freqMult, col: 'rgba(255,20,20,', lw: 2.2, phase: 0 },
@@ -1058,13 +1256,13 @@ nav,
       }
       const al = (0.6 + kEnv * 0.4).toFixed(2);
       ctx.strokeStyle = `${col}${al})`;
-      ctx.lineWidth = lw + kEnv * 1.5;
+      ctx.lineWidth = lw + kEnv * 1.5 + audioBass * 2;
       ctx.stroke();
     });
   }
 
   function drawKickBurst(beatPhase) {
-    const env = kickEnv(beatPhase);
+    const env = effectiveKick(beatPhase);
     if (env < 0.04) return;
     const n = Math.floor(6 + env * 14);
     for (let i = 0; i < n; i++) {
@@ -1139,7 +1337,7 @@ nav,
   }
 
   function triggerBeatEffects(now, beatN) {
-    if (isMobile) return;
+    if (isMobile || reduceEffects) return;
     const isFourBeat = beatN % 4 === 0;
     const isEightBeat = beatN % 8 === 0;
 
@@ -1153,6 +1351,30 @@ nav,
     if (isEightBeat) {
       sliceUntil = now + 120;
     }
+  }
+
+  function updateTiming(delta) {
+    if (audioMode === 'file' && audioEl && !audioEl.paused) {
+      readAnalyser();
+      elapsed = audioEl.currentTime;
+      wallElapsed = elapsed;
+      return;
+    }
+    if (audioMode === 'mixcloud' && audioPlaying) {
+      pollMixPosition();
+      if (mixPosition > 0) {
+        elapsed = mixPosition;
+        wallElapsed = mixPosition;
+      } else {
+        wallElapsed += delta / 1000;
+        elapsed = wallElapsed;
+      }
+      audioBass = kickEnv((elapsed / BEAT_SEC) % 1) * 0.55;
+      return;
+    }
+    wallElapsed += delta / 1000;
+    elapsed = wallElapsed;
+    audioBass *= 0.92;
   }
 
   function animate(timestamp) {
@@ -1178,7 +1400,7 @@ nav,
     }
 
     const quality = getQuality();
-    elapsed += delta / 1000;
+    updateTiming(delta);
 
     const beatF = elapsed / BEAT_SEC;
     const beatN = Math.floor(beatF);
@@ -1189,9 +1411,9 @@ nav,
       triggerBeatEffects(now, beatN);
     }
 
-    const isGlitching = !isMobile && now < glitchUntil;
-    const isStrobing = !isMobile && now < strobeUntil;
-    const isSlicing = !isMobile && now < sliceUntil;
+    const isGlitching = !isMobile && !reduceEffects && now < glitchUntil;
+    const isStrobing = !isMobile && !reduceEffects && now < strobeUntil;
+    const isSlicing = !isMobile && !reduceEffects && now < sliceUntil;
     const glitchInt = isGlitching ? Math.min(1, (glitchUntil - now) / 180) : 0;
 
     drawBackground(beatPhase);
@@ -1201,7 +1423,7 @@ nav,
     if (isGlitching) drawGlitchSlices(glitchInt);
     if (isSlicing) drawGlitchSlices(0.8 + Math.random() * 0.2);
 
-    drawNoise(0.1 + glitchInt * 0.9 + kickEnv(beatPhase) * 0.4, quality);
+    drawNoise(0.1 + glitchInt * 0.9 + effectiveKick(beatPhase) * 0.4, quality);
     if (!isMobile) drawScanlines();
 
     if (isStrobing) drawStrobe(Math.min(1, (strobeUntil - now) / STROBE_MS));
@@ -1209,7 +1431,7 @@ nav,
     drawBpmWatermark();
   }
 
-  function boot() {
+  async function boot() {
     canvas = document.getElementById('bg-canvas');
     if (!canvas) return;
     ctx = canvas.getContext('2d', { alpha: false });
@@ -1217,6 +1439,7 @@ nav,
 
     document.body.classList.add('visuals-ready');
     resizeCanvas();
+    performanceState.lastTimestamp = performance.now();
 
     window.addEventListener('pointermove', (e) => setPointer(e.clientX, e.clientY), { passive: true });
     window.addEventListener('pointerdown', (e) => setPointer(e.clientX, e.clientY), { passive: true });
@@ -1228,16 +1451,15 @@ nav,
       window.visualViewport.addEventListener('resize', resizeCanvas, { passive: true });
     }
 
-    if (reduceMotion) {
-      drawBackground(0);
-      drawWaveform(0, 0);
-      drawBpmWatermark();
-      return;
-    }
+    const hasFile = await initFileAudio();
+    if (!hasFile) await initMixcloud();
 
     ctx.fillStyle = 'rgb(3,0,8)';
     ctx.fillRect(0, 0, width, height);
     requestAnimationFrame(animate);
+
+    const autoplayed = await tryAutoplay();
+    if (!autoplayed) showUnlock();
   }
 
   if (document.readyState === 'loading') {

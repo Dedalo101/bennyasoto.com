@@ -28,6 +28,12 @@ npx html-validate index.html
 
 CI runs `embed-visuals.mjs --check` to ensure `index.html` stays in sync.
 
+## Audio
+
+Drop a track at `assets/audio/benny-yasoto.mp3` for full Web Audio sync (preferred).
+If the file is missing, the site falls back to a Benny Yasoto Mixcloud set and syncs visuals to playback position.
+Browsers require one tap (`Pulsa para entrar`) when autoplay is blocked.
+
 PocketBase / `dedalo-core` sync: deferred until v2 (track in Dedalo101-Core when ready).
 
 ## Links
