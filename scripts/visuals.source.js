@@ -1,5 +1,5 @@
 /**
- * Benny Yasoto — audio-synced oscilloscope engine (145 BPM)
+ * Benny Yasoto — audio-synced oscilloscope engine
  * Waveform + kick follow playback; Mixcloud fallback if local MP3 is missing.
  */
 (function () {
@@ -114,7 +114,7 @@
       unlockEl.type = 'button';
       unlockEl.className = 'audio-unlock';
       unlockEl.setAttribute('aria-label', 'Iniciar audio');
-      unlockEl.innerHTML = '<span>▶ Audio · 145 BPM</span>';
+      unlockEl.innerHTML = '<span>▶ Audio</span>';
       unlockEl.addEventListener('click', unlockExperience);
       document.body.appendChild(unlockEl);
     }
