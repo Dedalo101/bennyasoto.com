@@ -15,7 +15,8 @@
   const WAVE_SCROLL = BPM * 0.078;
   const STROBE_MS = 60;
   const AUDIO_SRC = 'assets/audio/benny-yasoto.mp3';
-  const MIXCLOUD_FEED = '/forzinvalves/benny-yasoto-mor-club-30-12-2012/';
+  const MIXCLOUD_URL =
+    'https://www.mixcloud.com/forzinvalves/benny-yasoto-mor-club-30-12-2012/';
 
   const PERFORMANCE_PRESETS = [
     { name: 'low', noiseScale: 200 },
@@ -139,6 +140,23 @@
     });
   }
 
+  function mixcloudEmbedSrc() {
+    return (
+      'https://www.mixcloud.com/widget/iframe/?feed=' +
+      encodeURIComponent(MIXCLOUD_URL) +
+      '&hide_cover=1&mini=1'
+    );
+  }
+
+  async function localAudioExists() {
+    try {
+      const res = await fetch(AUDIO_SRC, { method: 'HEAD', cache: 'no-store' });
+      return res.ok;
+    } catch (_) {
+      return false;
+    }
+  }
+
   function initMixcloud() {
     return loadMixcloudScript().then(() => {
       if (!window.Mixcloud) return false;
@@ -147,11 +165,9 @@
         iframe = document.createElement('iframe');
         iframe.id = 'mixcloud-player';
         iframe.title = 'Benny Yasoto — Mixcloud';
-        iframe.src =
-          'https://www.mixcloud.com/widget/iframe/?feed=' +
-          encodeURIComponent(MIXCLOUD_FEED) +
-          '&hide_cover=1&mini=1';
-        iframe.allow = 'autoplay';
+        iframe.src = mixcloudEmbedSrc();
+        iframe.allow =
+          'encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share';
         document.body.appendChild(iframe);
       }
       mixWidget = window.Mixcloud.PlayerWidget(iframe);
@@ -526,8 +542,10 @@
     requestAnimationFrame(animate);
 
     void (async () => {
-      const hasFile = await initFileAudio();
-      if (!hasFile) await initMixcloud();
+      const mixOk = await initMixcloud();
+      if (!mixOk && (await localAudioExists())) {
+        await initFileAudio();
+      }
       const autoplayed = await tryAutoplay();
       if (!autoplayed) showUnlock();
     })();
