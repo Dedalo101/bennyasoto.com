@@ -17,7 +17,7 @@ jobs:
           node-version: '22'
 
       - name: Validate HTML
-        run: npx --yes html-validate index.html
+        run: npx --yes html-validate index.html 404.html
 
       - name: Verify visuals embedded
         run: node scripts/embed-visuals.mjs --check

@@ -1,6 +1,6 @@
 /**
  * Benny Yasoto — audio-synced oscilloscope engine
- * Waveform + kick follow playback; Mixcloud fallback if local MP3 is missing.
+ * Waveform + kick follow playback; Mixcloud widget with clock fallback.
  */
 (function () {
   'use strict';
@@ -14,9 +14,7 @@
   const BEAT_SEC = 60 / BPM;
   const WAVE_SCROLL = BPM * 0.078;
   const STROBE_MS = 60;
-  const AUDIO_SRC = 'assets/audio/benny-yasoto.mp3';
-  const MIXCLOUD_URL =
-    'https://www.mixcloud.com/forzinvalves/benny-yasoto-mor-club-30-12-2012/';
+  const MIXCLOUD_PATH = '/forzinvalves/benny-yasoto-mor-club-30-12-2012/';
 
   const PERFORMANCE_PRESETS = [
     { name: 'low', noiseScale: 200 },
@@ -59,10 +57,6 @@
     ]);
   }
 
-  let audioEl = null;
-  let audioCtx = null;
-  let analyser = null;
-  let freqData = null;
   let mixWidget = null;
   let mixPosition = 0;
 
@@ -101,8 +95,8 @@
       '}',
       '.audio-unlock.is-hidden { display: none; }',
       '#mixcloud-player {',
-      '  position: fixed; bottom: 12px; right: 12px; width: min(340px, 92vw);',
-      '  height: 60px; border: 0; z-index: 50; opacity: 0.9;',
+      '  position: fixed; left: -9999px; width: 300px; height: 120px;',
+      '  border: 0; opacity: 0; pointer-events: none; z-index: -1;',
       '}',
     ].join('\n');
     document.head.appendChild(style);
@@ -143,18 +137,9 @@
   function mixcloudEmbedSrc() {
     return (
       'https://www.mixcloud.com/widget/iframe/?feed=' +
-      encodeURIComponent(MIXCLOUD_URL) +
-      '&hide_cover=1&mini=1'
+      encodeURIComponent(MIXCLOUD_PATH) +
+      '&hide_cover=1&hide_tracklist=1'
     );
-  }
-
-  async function localAudioExists() {
-    try {
-      const res = await fetch(AUDIO_SRC, { method: 'HEAD', cache: 'no-store' });
-      return res.ok;
-    } catch (_) {
-      return false;
-    }
   }
 
   function initMixcloud() {
@@ -170,74 +155,20 @@
           'encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share';
         document.body.appendChild(iframe);
       }
-      mixWidget = window.Mixcloud.PlayerWidget(iframe);
+      try {
+        mixWidget = window.Mixcloud.PlayerWidget(iframe);
+      } catch (_) {
+        return false;
+      }
       return withTimeout(
         mixWidget.ready.then(() => {
           audioMode = 'mixcloud';
           return true;
         }),
-        6000,
+        8000,
         false
       );
     });
-  }
-
-  function initFileAudio() {
-    return withTimeout(new Promise((resolve) => {
-      audioEl = document.createElement('audio');
-      audioEl.id = 'site-audio';
-      audioEl.src = AUDIO_SRC;
-      audioEl.loop = true;
-      audioEl.crossOrigin = 'anonymous';
-      audioEl.preload = 'auto';
-      audioEl.style.cssText = 'position:fixed;width:0;height:0;opacity:0;pointer-events:none;';
-      document.body.appendChild(audioEl);
-
-      const onReady = () => {
-        try {
-          const Ctx = window.AudioContext || window.webkitAudioContext;
-          if (!Ctx) {
-            audioMode = 'file';
-            resolve(true);
-            return;
-          }
-          audioCtx = new Ctx();
-          const source = audioCtx.createMediaElementSource(audioEl);
-          analyser = audioCtx.createAnalyser();
-          analyser.fftSize = 2048;
-          analyser.smoothingTimeConstant = 0.82;
-          freqData = new Uint8Array(analyser.frequencyBinCount);
-          source.connect(analyser);
-          analyser.connect(audioCtx.destination);
-          audioMode = 'file';
-          resolve(true);
-        } catch (_) {
-          audioMode = 'file';
-          resolve(true);
-        }
-      };
-
-      audioEl.addEventListener('canplaythrough', onReady, { once: true });
-      audioEl.addEventListener(
-        'error',
-        () => {
-          audioEl.remove();
-          audioEl = null;
-          resolve(false);
-        },
-        { once: true }
-      );
-      audioEl.load();
-    }), 4000, false);
-  }
-
-  function readAnalyser() {
-    if (!analyser || !freqData) return;
-    analyser.getByteFrequencyData(freqData);
-    let bass = 0;
-    const bins = Math.min(16, freqData.length);
-    for (let i = 0; i < bins; i++) bass += freqData[i];
-    audioBass = bass / (bins * 255);
   }
 
   function pollMixPosition() {
@@ -248,17 +179,6 @@
   }
 
   async function tryAutoplay() {
-    if (audioMode === 'file' && audioEl) {
-      if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
-      try {
-        await audioEl.play();
-        audioPlaying = true;
-        hideUnlock();
-        return true;
-      } catch (_) {
-        return false;
-      }
-    }
     if (audioMode === 'mixcloud' && mixWidget) {
       try {
         mixWidget.play();
@@ -412,15 +332,6 @@
     }
   }
 
-  function drawBpmWatermark() {
-    ctx.font = `bold ${Math.max(9, width * 0.028)}px 'Share Tech Mono',monospace`;
-    ctx.fillStyle = 'rgba(255,0,0,0.18)';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'top';
-    ctx.fillText(`${BPM} BPM`, width - 10, 10);
-    ctx.textAlign = 'left';
-  }
-
   function triggerBeatEffects(now, beatN) {
     if (isMobile || reduceEffects) return;
     const isFourBeat = beatN % 4 === 0;
@@ -439,12 +350,6 @@
   }
 
   function updateTiming(delta) {
-    if (audioMode === 'file' && audioEl && !audioEl.paused) {
-      readAnalyser();
-      elapsed = audioEl.currentTime;
-      wallElapsed = elapsed;
-      return;
-    }
     if (audioMode === 'mixcloud' && audioPlaying) {
       pollMixPosition();
       if (mixPosition > 0) {
@@ -513,8 +418,6 @@
     if (!isMobile) drawScanlines();
 
     if (isStrobing) drawStrobe(Math.min(1, (strobeUntil - now) / STROBE_MS));
-
-    drawBpmWatermark();
   }
 
   async function boot() {
@@ -543,9 +446,7 @@
 
     void (async () => {
       const mixOk = await initMixcloud();
-      if (!mixOk && (await localAudioExists())) {
-        await initFileAudio();
-      }
+      if (!mixOk) audioMode = 'clock';
       const autoplayed = await tryAutoplay();
       if (!autoplayed) showUnlock();
     })();
